@@ -40,6 +40,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const reasoning = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 8);
   reasoning.command = 'oxilite.setReasoning';
   const onViewMessage = (m: FromView) => {
+    if (m.type === 'ready') return;
     if (m.type === 'openResource') void vscode.commands.executeCommand('oxilite.openResource', m.iri);
     if (m.type === 'openLocation') void openLocation(m.location);
     if (m.type === 'why') void why(m);

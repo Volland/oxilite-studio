@@ -25,6 +25,9 @@ describe('graph view models', () => {
     const g = fromCypher(rows);
     expect(g.nodes.map((n) => n.label)).toEqual(['Alice', 'Bob']);
     expect(g.edges).toEqual([{ id: 'e0', source: 'a', target: 'b', label: 'knows', inferred: undefined }]);
+    // A relationship shared by two paths is one edge.
+    const twice = fromCypher([...rows, ...rows]);
+    expect(twice.edges).toHaveLength(1);
     expect(formatCypher(node('a', 'Alice'))).toBe('(:Person {name: Alice})');
     expect(formatCypher([1, 'x'])).toBe('[1, x]');
   });

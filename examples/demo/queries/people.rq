@@ -1,0 +1,10 @@
+PREFIX ex: <https://example.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Everyone who is a Person: nobody says so directly, the ontology does.
+SELECT ?person ?name ?salary WHERE {
+  ?person a ex:Person .
+  OPTIONAL { ?person ex:name ?name }
+  OPTIONAL { ?person ex:salary ?salary }
+}
+ORDER BY DESC(?salary)

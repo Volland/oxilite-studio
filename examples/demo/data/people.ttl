@@ -1,0 +1,23 @@
+@prefix ex: <https://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# A company is not a person, so it gets a label rather than ex:name (whose domain is ex:Person).
+ex:acme a ex:Company ; rdfs:label "ACME Corp" .
+
+ex:ada a ex:Manager ;
+  ex:name "Ada Lovelace" ;
+  ex:worksFor ex:acme ;
+  ex:manages ex:bob , ex:cyd ;
+  ex:salary 120000 .
+
+ex:bob ex:name "Bob Stone" ;
+  ex:worksFor ex:acme ;
+  ex:manages ex:eve ;
+  ex:salary 90000 .
+
+ex:cyd ex:name "Cyd Park" ;
+  ex:worksFor ex:acme ;
+  ex:salary 85000 .
+
+ex:eve ex:worksFor ex:acme ;
+  ex:salary 70000 .

@@ -1,0 +1,3 @@
+@prefix ex: <https://example.org/> .
+ex:ada a ex:Person .
+ex:eve ex:reportsTo ex:ada .

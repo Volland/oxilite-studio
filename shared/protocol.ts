@@ -195,6 +195,7 @@ export type ToView =
 
 /** Messages from a webview back to the extension. */
 export type FromView =
+  | { type: 'ready' }
   | { type: 'openResource'; iri: string }
   | { type: 'openLocation'; location: LocationJson }
   | { type: 'why'; s: Term; p: Term; o: Term };

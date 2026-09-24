@@ -4,8 +4,28 @@ import { randomBytes } from 'node:crypto';
 import * as vscode from 'vscode';
 import type { FromView, ToView } from '../shared/protocol';
 
+/** Holds a panel's latest message until its webview says it is ready to receive. */
+export class Mailbox {
+  private ready = false;
+  private pending: ToView | undefined;
+
+  constructor(private readonly panel: vscode.WebviewPanel) {}
+
+  post(message: ToView): void {
+    if (this.ready) void this.panel.webview.postMessage(message);
+    else this.pending = message;
+  }
+
+  opened(): void {
+    this.ready = true;
+    if (this.pending) void this.panel.webview.postMessage(this.pending);
+    this.pending = undefined;
+  }
+}
+
 export class ResultsPanels implements vscode.Disposable {
   private readonly panels = new Map<string, vscode.WebviewPanel>();
+  private readonly mailboxes = new WeakMap<vscode.WebviewPanel, Mailbox>();
 
   constructor(
     private readonly extensionUri: vscode.Uri,
@@ -27,15 +47,17 @@ export class ResultsPanels implements vscode.Disposable {
       { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
       { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [webviewRoot] },
     );
+    const mailbox = new Mailbox(panel);
+    this.mailboxes.set(panel, mailbox);
+    panel.webview.onDidReceiveMessage((m: FromView) => (m.type === 'ready' ? mailbox.opened() : this.onMessage(m)));
     panel.webview.html = webviewHtml(panel.webview, webviewRoot);
-    panel.webview.onDidReceiveMessage((m: FromView) => this.onMessage(m));
     panel.onDidDispose(() => this.panels.delete(key));
     this.panels.set(key, panel);
     return panel;
   }
 
   post(panel: vscode.WebviewPanel, message: ToView): void {
-    void panel.webview.postMessage(message);
+    this.mailboxes.get(panel)?.post(message);
   }
 
   dispose(): void {

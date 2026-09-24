@@ -104,6 +104,12 @@ The ontology diagram draws classes (with datatype properties and instance counts
 
 "Debug Rules" on a `.dl` file shows each rule's body matches and head facts, flags empty and exploding rules, and lists the strata; lines open the rule. "Full-Text Search" runs `oxl:textMatch` over string literals into a results panel.
 
+### Delivery to webviews
+
+A panel holds its latest message until the webview says it is ready, since a message posted before the page loads is lost. See [[src/resultsPanel.ts#Mailbox]].
+
+Clickable text in the views is a link-styled button, not an `<a href="#">`: a notebook renderer's host intercepts clicks on links, which broke the table/graph toggle and IRI links in notebook outputs. The graph view lays out once its container has a size (a notebook output may not have one yet): small graphs in layers along edge direction, larger ones with a force layout, and relationships repeated across Cypher paths drawn once.
+
 ### Still to come
 
 Paging the grid from the server instead of capping it, a structured plan tree, and the v2 items: JSON-LD and credentials, schema diff, in-editor chat, generic SPARQL endpoints and W3C test manifests. See [[decisions#S8 React webviews with serializable result payloads]].
@@ -119,6 +125,12 @@ Kinds: query results against an expected results file, SHACL conformance or expe
 `oxilite mcp` exposes query, schema summary, validate and why as MCP tools; the extension registers it for the workspace and can copy its config for other agents. See [[decisions#S13 Agents through MCP tools, not an in-editor chat]].
 
 The MCP server loads its own in-memory copy of the project from the files, so it agrees with the studio without sharing its process. Registration uses VS Code's MCP server definition provider; "Copy MCP Server Config" gives the same command for `.mcp.json`.
+
+## Demo project
+
+`examples/demo` is a small company knowledge graph (ontology, people, a SHACL shape, recursive rules, queries, two manifest tests and a notebook with saved outputs) used for the website's screenshots and as a first project to open.
+
+Eve deliberately has no name, so SHACL flags her line once OWL 2 RL makes her a Person. `oxilite check` in the folder passes both tests and fails on that violation by design.
 
 ## Packaging
 
