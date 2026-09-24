@@ -1,0 +1,560 @@
+{
+  "name": "oxilite-studio",
+  "displayName": "oxilite studio",
+  "description": "A development studio for oxilite: SPARQL, reasoning, SHACL and Datalog over RDF on SQLite.",
+  "version": "0.1.0",
+  "publisher": "pavlyshyn",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Volland/oxilite-studio"
+  },
+  "engines": {
+    "vscode": "^1.101.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Data Science",
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/*.{ttl,nt,nq,trig,n3,rdf,owl,rq,ru,sparql,dl,cypher,shex,oxnb}",
+    "workspaceContains:oxilite.toml",
+    "onView:oxilite.connections",
+    "onNotebook:oxilite-notebook"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "sparql",
+        "aliases": [
+          "SPARQL",
+          "sparql"
+        ],
+        "extensions": [
+          ".rq",
+          ".ru",
+          ".sparql"
+        ],
+        "configuration": "./syntaxes/rdf.language-configuration.json"
+      },
+      {
+        "id": "turtle",
+        "aliases": [
+          "Turtle",
+          "TriG",
+          "N-Triples"
+        ],
+        "extensions": [
+          ".ttl",
+          ".trig",
+          ".nt",
+          ".nq",
+          ".n3"
+        ],
+        "configuration": "./syntaxes/rdf.language-configuration.json"
+      },
+      {
+        "id": "datalog",
+        "aliases": [
+          "oxilite Datalog",
+          "datalog"
+        ],
+        "extensions": [
+          ".dl"
+        ],
+        "configuration": "./syntaxes/rdf.language-configuration.json"
+      },
+      {
+        "id": "cypher",
+        "aliases": [
+          "Cypher",
+          "cypher"
+        ],
+        "extensions": [
+          ".cypher",
+          ".cyp"
+        ],
+        "configuration": "./syntaxes/cypher.language-configuration.json"
+      },
+      {
+        "id": "shex",
+        "aliases": [
+          "ShEx",
+          "ShExC"
+        ],
+        "extensions": [
+          ".shex"
+        ],
+        "configuration": "./syntaxes/rdf.language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "sparql",
+        "scopeName": "source.sparql",
+        "path": "./syntaxes/sparql.tmLanguage.json"
+      },
+      {
+        "language": "turtle",
+        "scopeName": "source.turtle",
+        "path": "./syntaxes/turtle.tmLanguage.json"
+      },
+      {
+        "language": "datalog",
+        "scopeName": "source.oxilite-datalog",
+        "path": "./syntaxes/datalog.tmLanguage.json"
+      },
+      {
+        "language": "cypher",
+        "scopeName": "source.cypher",
+        "path": "./syntaxes/cypher.tmLanguage.json"
+      },
+      {
+        "language": "shex",
+        "scopeName": "source.shex",
+        "path": "./syntaxes/shex.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "oxilite.runQuery",
+        "title": "Run Query",
+        "category": "oxilite",
+        "icon": "$(play)"
+      },
+      {
+        "command": "oxilite.explainQuery",
+        "title": "Explain Query",
+        "category": "oxilite",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "oxilite.reloadStore",
+        "title": "Reload Project Store",
+        "category": "oxilite",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "oxilite.restartServer",
+        "title": "Restart Server",
+        "category": "oxilite"
+      },
+      {
+        "command": "oxilite.attachStore",
+        "title": "Attach SQLite Store\u2026",
+        "category": "oxilite",
+        "icon": "$(add)"
+      },
+      {
+        "command": "oxilite.detachStore",
+        "title": "Detach Store",
+        "category": "oxilite",
+        "icon": "$(close)"
+      },
+      {
+        "command": "oxilite.selectConnection",
+        "title": "Select Connection",
+        "category": "oxilite"
+      },
+      {
+        "command": "oxilite.activateConnection",
+        "title": "Use This Connection",
+        "category": "oxilite"
+      },
+      {
+        "command": "oxilite.openHistoryEntry",
+        "title": "Open Query",
+        "category": "oxilite"
+      },
+      {
+        "command": "oxilite.clearHistory",
+        "title": "Clear Query History",
+        "category": "oxilite",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "oxilite.openResource",
+        "title": "Open Resource View",
+        "category": "oxilite",
+        "icon": "$(symbol-class)"
+      },
+      {
+        "command": "oxilite.showValidationReport",
+        "title": "Show SHACL Report",
+        "category": "oxilite",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "oxilite.validate",
+        "title": "Validate Now",
+        "category": "oxilite"
+      },
+      {
+        "command": "oxilite.setReasoning",
+        "title": "Set Reasoning Profile\u2026",
+        "category": "oxilite",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "oxilite.refreshExplorer",
+        "title": "Refresh",
+        "category": "oxilite",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "oxilite.importFile",
+        "title": "Import RDF File into Connection\u2026",
+        "category": "oxilite",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "oxilite.exportStore",
+        "title": "Export Connection to File\u2026",
+        "category": "oxilite",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "oxilite.exportGraph",
+        "title": "Export Graph to File\u2026",
+        "category": "oxilite"
+      },
+      {
+        "command": "oxilite.updateSnapshot",
+        "title": "Update Snapshot",
+        "category": "oxilite",
+        "icon": "$(save)"
+      },
+      {
+        "command": "oxilite.attachD1",
+        "title": "Attach Cloudflare D1 Database\u2026",
+        "category": "oxilite",
+        "icon": "$(cloud)"
+      },
+      {
+        "command": "oxilite.attachLocalD1",
+        "title": "Attach Local D1 (wrangler dev)\u2026",
+        "category": "oxilite"
+      },
+      {
+        "command": "oxilite.materialize",
+        "title": "Materialize OWL 2 RL on Connection\u2026",
+        "category": "oxilite"
+      },
+      {
+        "command": "oxilite.copyMcpConfig",
+        "title": "Copy MCP Server Config",
+        "category": "oxilite"
+      },
+      {
+        "command": "oxilite.newNotebook",
+        "title": "New Notebook",
+        "category": "oxilite",
+        "icon": "$(notebook)"
+      },
+      {
+        "command": "oxilite.showOntology",
+        "title": "Show Ontology Diagram",
+        "category": "oxilite",
+        "icon": "$(type-hierarchy)"
+      },
+      {
+        "command": "oxilite.debugRules",
+        "title": "Debug Rules",
+        "category": "oxilite",
+        "icon": "$(debug)"
+      },
+      {
+        "command": "oxilite.textSearch",
+        "title": "Full-Text Search\u2026",
+        "category": "oxilite",
+        "icon": "$(search)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "oxilite.runQuery",
+          "when": "editorLangId == sparql || editorLangId == datalog || editorLangId == cypher",
+          "group": "navigation@1"
+        },
+        {
+          "command": "oxilite.explainQuery",
+          "when": "editorLangId == sparql || editorLangId == datalog || editorLangId == cypher",
+          "group": "navigation@2"
+        },
+        {
+          "command": "oxilite.debugRules",
+          "when": "editorLangId == datalog",
+          "group": "navigation@3"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "oxilite.attachStore",
+          "when": "view == oxilite.connections",
+          "group": "navigation"
+        },
+        {
+          "command": "oxilite.reloadStore",
+          "when": "view == oxilite.connections",
+          "group": "navigation"
+        },
+        {
+          "command": "oxilite.clearHistory",
+          "when": "view == oxilite.history",
+          "group": "navigation"
+        },
+        {
+          "command": "oxilite.refreshExplorer",
+          "when": "view == oxilite.explorer",
+          "group": "navigation"
+        },
+        {
+          "command": "oxilite.setReasoning",
+          "when": "view == oxilite.explorer",
+          "group": "navigation"
+        },
+        {
+          "command": "oxilite.showValidationReport",
+          "when": "view == oxilite.explorer",
+          "group": "navigation"
+        },
+        {
+          "command": "oxilite.importFile",
+          "when": "view == oxilite.connections",
+          "group": "1_io"
+        },
+        {
+          "command": "oxilite.exportStore",
+          "when": "view == oxilite.connections",
+          "group": "1_io"
+        },
+        {
+          "command": "oxilite.attachD1",
+          "when": "view == oxilite.connections",
+          "group": "1_io"
+        },
+        {
+          "command": "oxilite.attachLocalD1",
+          "when": "view == oxilite.connections",
+          "group": "1_io"
+        },
+        {
+          "command": "oxilite.showOntology",
+          "when": "view == oxilite.explorer",
+          "group": "navigation"
+        },
+        {
+          "command": "oxilite.textSearch",
+          "when": "view == oxilite.explorer",
+          "group": "navigation"
+        },
+        {
+          "command": "oxilite.newNotebook",
+          "when": "view == oxilite.history",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "oxilite.detachStore",
+          "when": "view == oxilite.connections && viewItem == connection.attached",
+          "group": "inline"
+        },
+        {
+          "command": "oxilite.exportGraph",
+          "when": "view == oxilite.explorer && viewItem == graph"
+        },
+        {
+          "command": "oxilite.materialize",
+          "when": "view == oxilite.connections && viewItem == connection.attached"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "oxilite.runQuery",
+          "when": "editorLangId == sparql || editorLangId == datalog || editorLangId == cypher"
+        },
+        {
+          "command": "oxilite.explainQuery",
+          "when": "editorLangId == sparql || editorLangId == datalog || editorLangId == cypher"
+        },
+        {
+          "command": "oxilite.activateConnection",
+          "when": "false"
+        },
+        {
+          "command": "oxilite.openHistoryEntry",
+          "when": "false"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "oxilite.openResource",
+          "when": "editorLangId == sparql || editorLangId == turtle",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "oxilite.importFile",
+          "when": "resourceExtname =~ /\\.(ttl|nt|nq|trig|n3|rdf|owl)$/",
+          "group": "oxilite"
+        }
+      ],
+      "testing/item/context": [
+        {
+          "command": "oxilite.updateSnapshot",
+          "when": "controllerId == oxilite"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "oxilite.runQuery",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorTextFocus && (editorLangId == sparql || editorLangId == datalog || editorLangId == cypher)"
+      },
+      {
+        "command": "oxilite.explainQuery",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorTextFocus && (editorLangId == sparql || editorLangId == datalog || editorLangId == cypher)"
+      }
+    ],
+    "configuration": {
+      "title": "oxilite",
+      "properties": {
+        "oxilite.server.path": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to an `oxilite` binary to run as the studio server instead of the bundled one (for example a local `cargo build`).",
+          "scope": "machine-overridable"
+        },
+        "oxilite.query.rowLimit": {
+          "type": "number",
+          "default": 10000,
+          "minimum": 1,
+          "description": "Maximum number of rows a query returns to the results view."
+        },
+        "oxilite.reasoning.profile": {
+          "type": "string",
+          "enum": [
+            "none",
+            "rdfs",
+            "owlql",
+            "owl2rl"
+          ],
+          "default": "none",
+          "markdownDescription": "Reasoning for the Project store when `oxilite.toml` does not set one: `rdfs` and `owlql` rewrite queries, `owl2rl` materializes the closure."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "oxilite",
+          "title": "oxilite",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "oxilite": [
+        {
+          "id": "oxilite.connections",
+          "name": "Connections"
+        },
+        {
+          "id": "oxilite.explorer",
+          "name": "Store Explorer"
+        },
+        {
+          "id": "oxilite.history",
+          "name": "Query History"
+        }
+      ]
+    },
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "oxilite",
+        "label": "oxilite"
+      }
+    ],
+    "notebooks": [
+      {
+        "type": "oxilite-notebook",
+        "displayName": "oxilite Notebook",
+        "selector": [
+          {
+            "filenamePattern": "*.oxnb"
+          }
+        ]
+      }
+    ],
+    "notebookRenderer": [
+      {
+        "id": "oxilite-renderer",
+        "displayName": "oxilite results",
+        "entrypoint": "./dist/webview/renderer.js",
+        "mimeTypes": [
+          "application/vnd.oxilite.result+json"
+        ],
+        "requiresMessaging": "optional"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node esbuild.mjs && vite build",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p webview",
+    "test": "vitest run",
+    "package": "node esbuild.mjs --production && vite build && vsce package"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^10.1.1"
+  },
+  "devDependencies": {
+    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.14.13",
+    "@types/cytoscape": "^3.21.9",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/vscode": "~1.101.0",
+    "@types/vscode-notebook-renderer": "^1.72.4",
+    "@vitejs/plugin-react": "^6.1.1",
+    "@vscode/vsce": "^4.0.0",
+    "cytoscape": "^3.34.3",
+    "esbuild": "^0.28.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "typescript": "^5.9.0",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.1"
+  },
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#0A0A0A",
+    "theme": "dark"
+  },
+  "homepage": "https://github.com/Volland/oxilite-studio#readme",
+  "bugs": {
+    "url": "https://github.com/Volland/oxilite-studio/issues"
+  },
+  "keywords": [
+    "rdf",
+    "sparql",
+    "shacl",
+    "owl",
+    "datalog",
+    "cypher",
+    "sqlite",
+    "cloudflare-d1",
+    "knowledge-graph",
+    "oxilite"
+  ]
+}

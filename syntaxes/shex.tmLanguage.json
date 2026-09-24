@@ -1,0 +1,13 @@
+{
+  "scopeName": "source.shex",
+  "name": "ShExC",
+  "patterns": [
+    { "include": "source.turtle#comment" },
+    { "include": "source.turtle#string" },
+    { "include": "source.turtle#iri" },
+    { "name": "keyword.control.shex", "match": "(?i)\\b(PREFIX|BASE|IMPORT|START|EXTERNAL|CLOSED|EXTRA|LITERAL|IRI|BNODE|NONLITERAL|AND|OR|NOT|MININCLUSIVE|MAXINCLUSIVE|MINEXCLUSIVE|MAXEXCLUSIVE|LENGTH|MINLENGTH|MAXLENGTH|TOTALDIGITS|FRACTIONDIGITS|ABSTRACT|EXTENDS|RESTRICTS)\\b" },
+    { "name": "keyword.operator.cardinality.shex", "match": "[*+?]|\\{\\d+(,\\d*)?\\}" },
+    { "include": "source.turtle#prefixed" },
+    { "include": "source.turtle#literal-other" }
+  ]
+}

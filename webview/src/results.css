@@ -1,0 +1,47 @@
+/* Colours come from the VS Code theme so the view matches light, dark and high contrast. */
+html, body, #root { height: 100%; margin: 0; padding: 0; }
+body { font-family: var(--vscode-font-family); font-size: var(--vscode-font-size); color: var(--vscode-foreground); background: var(--vscode-editor-background); }
+#root { display: flex; flex-direction: column; }
+header { padding: 6px 10px; border-bottom: 1px solid var(--vscode-panel-border); color: var(--vscode-descriptionForeground); }
+.note { padding: 10px; color: var(--vscode-descriptionForeground); }
+.error { margin: 10px; padding: 8px; white-space: pre-wrap; color: var(--vscode-errorForeground); background: var(--vscode-inputValidation-errorBackground); border: 1px solid var(--vscode-inputValidation-errorBorder); }
+.scroller { flex: 1; overflow: auto; }
+table { border-collapse: collapse; font-family: var(--vscode-editor-font-family); font-size: var(--vscode-editor-font-size); }
+th { position: sticky; top: 0; text-align: left; padding: 3px 10px; background: var(--vscode-editorGroupHeader-tabsBackground); border-bottom: 1px solid var(--vscode-panel-border); font-weight: 600; }
+td { padding: 2px 10px; height: 20px; white-space: nowrap; max-width: 60ch; overflow: hidden; text-overflow: ellipsis; border-bottom: 1px solid var(--vscode-editorWidget-border, transparent); }
+tr:hover td { background: var(--vscode-list-hoverBackground); }
+.index { color: var(--vscode-editorLineNumber-foreground); text-align: right; }
+td.NamedNode { color: var(--vscode-symbolIcon-classForeground, var(--vscode-textLink-foreground)); }
+td.Literal { color: var(--vscode-debugTokenExpression-string, var(--vscode-foreground)); }
+td.BlankNode { color: var(--vscode-descriptionForeground); font-style: italic; }
+.plan { margin: 0; padding: 8px 10px; overflow: auto; flex: 1; font-family: var(--vscode-editor-font-family); font-size: var(--vscode-editor-font-size); }
+.plan b { color: var(--vscode-debugTokenExpression-name, var(--vscode-textLink-foreground)); font-weight: 600; }
+.plan .note-line { color: var(--vscode-descriptionForeground); font-style: italic; }
+a { color: var(--vscode-textLink-foreground); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.page { padding: 8px 14px; overflow: auto; flex: 1; }
+.page h2 { margin: 6px 0 2px; font-size: 1.3em; }
+.page h3 { margin: 16px 0 4px; font-size: 1.05em; color: var(--vscode-descriptionForeground); }
+.iri { margin: 0 0 8px; color: var(--vscode-descriptionForeground); font-family: var(--vscode-editor-font-family); }
+table.plain td { padding: 2px 10px 2px 0; border: none; max-width: 70ch; }
+tr.inferred td { font-style: italic; }
+.badge { font-size: 0.85em; padding: 0 6px; border-radius: 8px; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); font-style: normal; }
+tr.violation td:first-child { color: var(--vscode-errorForeground); }
+tr.warning td:first-child { color: var(--vscode-editorWarning-foreground); }
+.graph { flex: 1; min-height: 300px; }
+.toggle { float: right; }
+.toggle a.on { font-weight: 600; color: var(--vscode-foreground); }
+ul.proof, ul.proof ul { list-style: none; padding-left: 18px; margin: 4px 0; border-left: 1px solid var(--vscode-panel-border); }
+ul.proof { border-left: none; padding-left: 0; }
+ul.proof li { margin: 4px 0; }
+.status { font-size: 0.85em; padding: 0 6px; border-radius: 8px; }
+.status.asserted { background: var(--vscode-testing-iconPassed, #2ea043); color: var(--vscode-editor-background); }
+.status.inferred { background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); }
+.status.absent { background: var(--vscode-inputValidation-errorBackground); }
+.rule { margin-left: 8px; color: var(--vscode-descriptionForeground); }
+.notebook-output { display: flex; flex-direction: column; max-height: 500px; }
+.notebook-output .scroller { max-height: 440px; }
+.notebook-output .graph { height: 420px; }
+table.debug tr.empty td { color: var(--vscode-editorWarning-foreground); }
+table.debug tr.exploding td, table.debug tr.error td { color: var(--vscode-errorForeground); }
+table.debug th { position: static; }

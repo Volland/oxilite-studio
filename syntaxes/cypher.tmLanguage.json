@@ -1,0 +1,20 @@
+{
+  "scopeName": "source.cypher",
+  "name": "Cypher",
+  "patterns": [
+    { "name": "comment.line.double-slash", "match": "//.*$" },
+    { "name": "comment.block", "begin": "/\\*", "end": "\\*/" },
+    { "name": "string.quoted.single", "match": "'([^'\\\\]|\\\\.)*'" },
+    { "name": "string.quoted.double", "match": "\"([^\"\\\\]|\\\\.)*\"" },
+    { "name": "string.other.backtick", "match": "`[^`]*`" },
+    {
+      "name": "keyword.control.cypher",
+      "match": "(?i)\\b(MATCH|OPTIONAL|WHERE|RETURN|WITH|UNWIND|ORDER|BY|SKIP|LIMIT|ASC|DESC|DISTINCT|CREATE|MERGE|SET|DELETE|DETACH|REMOVE|ON|AS|AND|OR|XOR|NOT|IN|IS|NULL|CASE|WHEN|THEN|ELSE|END|UNION|ALL|CALL|YIELD|EXISTS|STARTS|ENDS|CONTAINS)\\b"
+    },
+    { "name": "constant.language.cypher", "match": "(?i)\\b(true|false|null)\\b" },
+    { "name": "constant.numeric", "match": "\\b\\d+(\\.\\d+)?\\b" },
+    { "name": "entity.name.type.label", "match": "(?<=[:|])\\s*[A-Za-z_][\\w]*" },
+    { "name": "support.function.cypher", "match": "\\b[a-zA-Z_][\\w.]*(?=\\s*\\()" },
+    { "name": "variable.parameter", "match": "\\$[A-Za-z_][\\w]*" }
+  ]
+}

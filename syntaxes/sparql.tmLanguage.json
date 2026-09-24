@@ -1,0 +1,18 @@
+{
+  "scopeName": "source.sparql",
+  "name": "SPARQL",
+  "patterns": [
+    { "include": "source.turtle#comment" },
+    { "include": "source.turtle#string" },
+    { "include": "source.turtle#iri" },
+    { "name": "variable.other.sparql", "match": "[?$][A-Za-z0-9_\\u00B7-\\uFFFF]+" },
+    {
+      "name": "keyword.control.sparql",
+      "match": "(?i)\\b(select|construct|describe|ask|where|from|named|prefix|base|distinct|reduced|optional|union|minus|graph|service|silent|bind|values|filter|exists|not|as|order|by|asc|desc|limit|offset|group|having|insert|delete|data|load|clear|drop|create|add|move|copy|into|to|using|with|default|all|undef|in)\\b"
+    },
+    { "name": "support.function.sparql", "match": "(?i)\\b(count|sum|min|max|avg|sample|group_concat|str|lang|langmatches|datatype|bound|iri|uri|bnode|rand|abs|ceil|floor|round|concat|strlen|ucase|lcase|encode_for_uri|contains|strstarts|strends|strbefore|strafter|year|month|day|hours|minutes|seconds|timezone|tz|now|uuid|struuid|md5|sha1|sha256|sha384|sha512|coalesce|if|strlang|strdt|sameterm|isiri|isuri|isblank|isliteral|isnumeric|regex|substr|replace|triple|subject|predicate|object|istriple)\\b(?=\\s*\\()" },
+    { "name": "keyword.other.a.sparql", "match": "\\ba\\b" },
+    { "include": "source.turtle#prefixed" },
+    { "include": "source.turtle#literal-other" }
+  ]
+}

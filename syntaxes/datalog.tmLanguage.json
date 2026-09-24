@@ -1,0 +1,20 @@
+{
+  "scopeName": "source.oxilite-datalog",
+  "name": "oxilite Datalog",
+  "patterns": [
+    { "include": "source.turtle#comment" },
+    { "include": "source.turtle#string" },
+    { "include": "source.turtle#iri" },
+    { "name": "keyword.control.directive.datalog", "match": "@prefix\\b" },
+    { "name": "keyword.operator.rule.datalog", "match": ":-|\\?-" },
+    { "name": "keyword.control.datalog", "match": "\\b(not|count|sum|min|max|avg)\\b" },
+    { "name": "variable.other.datalog", "match": "\\?[A-Za-z_][\\w]*" },
+    { "name": "support.function.datalog", "match": "\\b(triple|quad)\\b(?=\\s*\\()" },
+    {
+      "match": "([A-Za-z][\\w.-]*)?(:)([\\w.%-]*[\\w%-])?(?=\\s*\\()",
+      "captures": { "1": { "name": "entity.name.namespace" }, "2": { "name": "punctuation.separator" }, "3": { "name": "entity.name.function" } }
+    },
+    { "include": "source.turtle#prefixed" },
+    { "include": "source.turtle#literal-other" }
+  ]
+}

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+bin/
+*.vsix
+.oxilite/
+lat.md/.cache/
+oxilite
+.claude/
+.mcp.json
+.omc/

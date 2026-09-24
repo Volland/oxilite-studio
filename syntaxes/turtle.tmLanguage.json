@@ -1,0 +1,39 @@
+{
+  "scopeName": "source.turtle",
+  "name": "Turtle",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#directive" },
+    { "include": "#string" },
+    { "include": "#iri" },
+    { "name": "keyword.other.a.turtle", "match": "\\ba\\b" },
+    { "include": "#prefixed" },
+    { "include": "#literal-other" }
+  ],
+  "repository": {
+    "comment": { "name": "comment.line.number-sign", "match": "#.*$" },
+    "directive": { "name": "keyword.control.directive.turtle", "match": "(?i)(@prefix|@base|\\bprefix\\b|\\bbase\\b|\\bgraph\\b|@version|\\bversion\\b)" },
+    "iri": { "name": "string.other.link.iri", "match": "<[^<>\"{}|^`\\\\\\s]*>" },
+    "string": {
+      "patterns": [
+        { "name": "string.quoted.triple", "begin": "\"\"\"", "end": "\"\"\"" },
+        { "name": "string.quoted.triple", "begin": "'''", "end": "'''" },
+        { "name": "string.quoted.double", "match": "\"([^\"\\\\\\n]|\\\\.)*\"" },
+        { "name": "string.quoted.single", "match": "'([^'\\\\\\n]|\\\\.)*'" },
+        { "name": "constant.language.langtag", "match": "(?<=[\"'])@[A-Za-z]+(-[A-Za-z0-9]+)*" }
+      ]
+    },
+    "prefixed": {
+      "match": "([A-Za-z][\\w.-]*)?(:)([\\w.%-]*[\\w%-])?",
+      "captures": { "1": { "name": "entity.name.namespace" }, "2": { "name": "punctuation.separator" }, "3": { "name": "entity.name.type" } }
+    },
+    "literal-other": {
+      "patterns": [
+        { "name": "constant.language.boolean", "match": "\\b(true|false)\\b" },
+        { "name": "constant.numeric", "match": "[+-]?(\\d+\\.?\\d*([eE][+-]?\\d+)?|\\.\\d+([eE][+-]?\\d+)?)" },
+        { "name": "variable.other.blank-node", "match": "_:[\\w.-]+" },
+        { "name": "keyword.operator.datatype", "match": "\\^\\^" }
+      ]
+    }
+  }
+}
