@@ -1,0 +1,26 @@
+# A small company knowledge graph for trying oxilite studio.
+reasoning = "owl2rl"
+
+[[graph]]
+iri = "https://example.org/g/company"
+files = ["data/*.ttl"]
+
+[[graph]]
+iri = "https://example.org/g/ontology"
+files = ["ontology/*.ttl"]
+role = "ontology"
+
+[shapes]
+files = ["shapes/*.ttl"]
+
+[rules]
+files = ["rules/*.dl"]
+
+[[test]]
+name = "every manager is a person"
+entails = "tests/entailed.ttl"
+
+[[test]]
+name = "a person without a name is rejected"
+data = "tests/nameless.ttl"
+expect_violations = ["ex:PersonShape"]

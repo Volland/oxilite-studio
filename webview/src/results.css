@@ -41,7 +41,11 @@ ul.proof li { margin: 4px 0; }
 .rule { margin-left: 8px; color: var(--vscode-descriptionForeground); }
 .notebook-output { display: flex; flex-direction: column; max-height: 500px; }
 .notebook-output .scroller { max-height: 440px; }
-.notebook-output .graph { height: 420px; }
+.notebook-output .graph { height: 380px; flex: none; }
 table.debug tr.empty td { color: var(--vscode-editorWarning-foreground); }
 table.debug tr.exploding td, table.debug tr.error td { color: var(--vscode-errorForeground); }
 table.debug th { position: static; }
+/* Links are buttons: a notebook host intercepts clicks on real links. */
+button.link { background: none; border: none; padding: 0; margin: 0; font: inherit; color: var(--vscode-textLink-foreground); cursor: pointer; text-align: inherit; }
+button.link:hover { text-decoration: underline; }
+.toggle button.link.on { font-weight: 600; color: var(--vscode-foreground); }

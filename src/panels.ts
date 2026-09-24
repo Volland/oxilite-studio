@@ -2,10 +2,11 @@
 // @lat: [[architecture#Views]]
 import * as vscode from 'vscode';
 import type { FromView, ToView } from '../shared/protocol';
-import { webviewHtml } from './resultsPanel';
+import { Mailbox, webviewHtml } from './resultsPanel';
 
 export class SinglePanel implements vscode.Disposable {
   private panel: vscode.WebviewPanel | undefined;
+  private mailbox: Mailbox | undefined;
 
   constructor(
     private readonly extensionUri: vscode.Uri,
@@ -22,13 +23,18 @@ export class SinglePanel implements vscode.Disposable {
         { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
         { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [root] },
       );
+      const mailbox = new Mailbox(this.panel);
+      this.mailbox = mailbox;
+      this.panel.webview.onDidReceiveMessage((m: FromView) => (m.type === 'ready' ? mailbox.opened() : this.onMessage(m)));
       this.panel.webview.html = webviewHtml(this.panel.webview, root);
-      this.panel.webview.onDidReceiveMessage((m: FromView) => this.onMessage(m));
-      this.panel.onDidDispose(() => (this.panel = undefined));
+      this.panel.onDidDispose(() => {
+        this.panel = undefined;
+        this.mailbox = undefined;
+      });
     }
     this.panel.title = title;
     this.panel.reveal(vscode.ViewColumn.Beside, true);
-    void this.panel.webview.postMessage(message);
+    this.mailbox?.post(message);
   }
 
   /** Updates the panel only if it is open. */

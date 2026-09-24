@@ -124,7 +124,11 @@ export function fromCypher(rows: unknown[][]): Graph {
     }
   };
   rows.forEach(visit);
+  // The same relationship appears in every path through it: draw it once.
+  const seen = new Set<string>();
   for (const r of rels) {
+    if (seen.has(r.id)) continue;
+    seen.add(r.id);
     // A relationship's ends may not be returned as nodes: draw them anyway.
     for (const end of [r.start, r.end]) b.node({ id: end, label: end.replace(/^.*[/#:]/, ''), kind: 'node' });
     b.edge(r.start, r.end, r.relType);

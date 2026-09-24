@@ -24,9 +24,9 @@ export function ResultView({ title, payload }: { title: string; payload: Extract
         {title}: {summarize(payload)}
         {graph && (
           <span className="toggle">
-            <a href="#" className={asGraph ? '' : 'on'} onClick={(e) => { e.preventDefault(); setAsGraph(false); }}>table</a>
+            <button type="button" className={asGraph ? 'link' : 'link on'} onClick={() => { setAsGraph(false); }}>table</button>
             {' · '}
-            <a href="#" className={asGraph ? 'on' : ''} onClick={(e) => { e.preventDefault(); setAsGraph(true); }}>graph</a>
+            <button type="button" className={asGraph ? 'link on' : 'link'} onClick={() => { setAsGraph(true); }}>graph</button>
           </span>
         )}
       </header>
@@ -93,9 +93,9 @@ export function Grid({ columns, rows }: { columns: string[]; rows: Row[] }) {
 function TermView({ term }: { term: Term | null }) {
   if (term?.termType === 'NamedNode') {
     return (
-      <a href="#" onClick={(e) => { e.preventDefault(); post({ type: 'openResource', iri: term.value }); }}>
+      <button type="button" className="link" onClick={() => { post({ type: 'openResource', iri: term.value }); }}>
         {formatTerm(term)}
-      </a>
+      </button>
     );
   }
   return <>{formatTerm(term)}</>;
@@ -116,7 +116,7 @@ function Badge({ inferred, producers, why }: { inferred: boolean; producers: str
       <span className="badge" title={producers?.length ? `inferred by ${producers.join(', ')}` : 'inferred by query-time reasoning'}>
         inferred{producers?.length ? `: ${producers.join(', ')}` : ''}
       </span>{' '}
-      {why && <a href="#" onClick={(e) => { e.preventDefault(); why(); }}>why?</a>}
+      {why && <button type="button" className="link" onClick={() => { why(); }}>why?</button>}
     </>
   );
 }
@@ -138,7 +138,7 @@ function ProofItem({ node }: { node: ProofNode }) {
     <li>
       <span className={`status ${node.status}`}>{node.status}</span> <code>{text}</code>
       {node.location && (
-        <> <a href="#" onClick={(e) => { e.preventDefault(); openLocation(node.location!); }}>{where(node.location)}</a></>
+        <> <button type="button" className="link" onClick={() => { openLocation(node.location!); }}>{where(node.location)}</button></>
       )}
       {node.rule && <div className="rule">by {node.producer ? `${node.producer}: ` : ''}<code>{node.rule}</code></div>}
       {node.note && <div className="note">{node.note}</div>}
@@ -159,7 +159,7 @@ export function ResourceView({ d }: { d: Description }) {
         <header>
           {d.iri}
           <span className="toggle">
-            <a href="#" onClick={(e) => { e.preventDefault(); setAsGraph(false); }}>statements</a> · <a href="#" className="on">graph</a>
+            <button type="button" className="link" onClick={() => { setAsGraph(false); }}>statements</button> · <button type="button" className="link on">graph</button>
           </span>
         </header>
         <GraphView graph={graph} />
@@ -169,7 +169,7 @@ export function ResourceView({ d }: { d: Description }) {
   return (
     <div className="page">
       <span className="toggle">
-        <a href="#" className="on">statements</a> · <a href="#" onClick={(e) => { e.preventDefault(); setAsGraph(true); }}>graph</a>
+        <button type="button" className="link on">statements</button> · <button type="button" className="link" onClick={() => { setAsGraph(true); }}>graph</button>
       </span>
       <h2>{formatTerm({ termType: 'NamedNode', value: d.iri })}</h2>
       <p className="iri">{d.iri}</p>
@@ -177,7 +177,7 @@ export function ResourceView({ d }: { d: Description }) {
         <p>
           Defined in{' '}
           {d.definitions.map((l, i) => (
-            <a key={i} href="#" onClick={(e) => { e.preventDefault(); openLocation(l); }}>{where(l)} </a>
+            <button type="button" key={i} className="link" onClick={() => openLocation(l)}>{where(l)} </button>
           ))}
         </p>
       )}
@@ -225,8 +225,8 @@ export function ReportView({ report }: { report: ValidationReport }) {
       <h2>{report.conforms ? 'The data conforms' : `${report.results.length} validation results`}</h2>
       <p className="note">
         Validated {report.inferred ? 'asserted and inferred' : 'asserted'} triples. Group by{' '}
-        <a href="#" onClick={(e) => { e.preventDefault(); setBy('shape'); }}>shape</a> ·{' '}
-        <a href="#" onClick={(e) => { e.preventDefault(); setBy('focus'); }}>focus node</a>
+        <button type="button" className="link" onClick={() => { setBy('shape'); }}>shape</button> ·{' '}
+        <button type="button" className="link" onClick={() => { setBy('focus'); }}>focus node</button>
       </p>
       {[...groups].map(([key, results]) => (
         <section key={key}>
@@ -240,7 +240,7 @@ export function ReportView({ report }: { report: ValidationReport }) {
                   <td>{r.path ?? ''}</td>
                   <td>{r.message}</td>
                   <td>
-                    {r.location && <a href="#" onClick={(e) => { e.preventDefault(); openLocation(r.location!); }}>{where(r.location)}</a>}
+                    {r.location && <button type="button" className="link" onClick={() => { openLocation(r.location!); }}>{where(r.location)}</button>}
                   </td>
                 </tr>
               ))}
@@ -314,7 +314,7 @@ export function DebugView({ title, uri, rules, plan, cap }: { title: string; uri
           {rules.map((r) => (
             <tr key={r.index} className={flag(r)}>
               <td>
-                <a href="#" onClick={(e) => { e.preventDefault(); post({ type: 'openLocation', location: { uri, range: { start: { line: r.line, character: 0 }, end: { line: r.line, character: 0 } } } }); }}>{r.line + 1}</a>
+                <button type="button" className="link" onClick={() => { post({ type: 'openLocation', location: { uri, range: { start: { line: r.line, character: 0 }, end: { line: r.line, character: 0 } } } }); }}>{r.line + 1}</button>
               </td>
               <td><code>{r.rule}</code></td>
               <td>{r.bodyMatches ?? ''}</td>

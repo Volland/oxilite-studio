@@ -1,0 +1,2 @@
+@prefix ex: <https://example.org/> .
+ex:zed a ex:Employee .

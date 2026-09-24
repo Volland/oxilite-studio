@@ -19,6 +19,8 @@ function App() {
       if (e.data.type !== 'running') vscode().setState(e.data);
     };
     window.addEventListener('message', listener);
+    // Tell the extension it can send: a message posted before this would be lost.
+    vscode().postMessage({ type: 'ready' });
     return () => window.removeEventListener('message', listener);
   }, []);
 

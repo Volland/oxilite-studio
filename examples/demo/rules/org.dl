@@ -1,0 +1,8 @@
+@prefix ex: <https://example.org/> .
+
+% Whoever manages you, directly or through others, is above you.
+ex:reportsTo(?x, ?m) :- ex:manages(?m, ?x).
+ex:reportsTo(?x, ?top) :- ex:manages(?m, ?x), ex:reportsTo(?m, ?top).
+
+% Two people managed by the same person are colleagues.
+ex:colleague(?x, ?y) :- ex:manages(?m, ?x), ex:manages(?m, ?y), ?x != ?y.

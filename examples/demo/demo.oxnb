@@ -1,0 +1,586 @@
+{
+ "cells": [
+  {
+   "kind": "markdown",
+   "language": "markdown",
+   "value": "# oxilite studio: a company knowledge graph\n\nThis notebook runs against the demo's **Project store**: `data/people.ttl`, the ontology in `ontology/`, and the rules in `rules/org.dl`, with **OWL 2 RL** reasoning (see `oxilite.toml`). Run a cell with the ▶ next to it; results are saved in the notebook.",
+   "outputs": []
+  },
+  {
+   "kind": "markdown",
+   "language": "markdown",
+   "value": "## Who is a person?\n\nNo triple says `a ex:Person`. The ontology says managers are employees and employees are persons, and `ex:worksFor` has the domain `ex:Employee`, so OWL 2 RL infers the rest.",
+   "outputs": []
+  },
+  {
+   "kind": "code",
+   "language": "sparql",
+   "value": "PREFIX ex: <https://example.org/>\n\nSELECT ?person ?name ?salary WHERE {\n  ?person a ex:Person .\n  OPTIONAL { ?person ex:name ?name }\n  OPTIONAL { ?person ex:salary ?salary }\n}\nORDER BY DESC(?salary)",
+   "outputs": [
+    {
+     "title": "cell 1",
+     "payload": {
+      "elapsedMs": 0.375458,
+      "kind": "solutions",
+      "rows": [
+       [
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/ada"
+        },
+        {
+         "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+         },
+         "language": "",
+         "termType": "Literal",
+         "value": "Ada Lovelace"
+        },
+        {
+         "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#integer"
+         },
+         "language": "",
+         "termType": "Literal",
+         "value": "120000"
+        }
+       ],
+       [
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/bob"
+        },
+        {
+         "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+         },
+         "language": "",
+         "termType": "Literal",
+         "value": "Bob Stone"
+        },
+        {
+         "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#integer"
+         },
+         "language": "",
+         "termType": "Literal",
+         "value": "90000"
+        }
+       ],
+       [
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/cyd"
+        },
+        {
+         "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+         },
+         "language": "",
+         "termType": "Literal",
+         "value": "Cyd Park"
+        },
+        {
+         "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#integer"
+         },
+         "language": "",
+         "termType": "Literal",
+         "value": "85000"
+        }
+       ],
+       [
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/eve"
+        },
+        null,
+        {
+         "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#integer"
+         },
+         "language": "",
+         "termType": "Literal",
+         "value": "70000"
+        }
+       ]
+      ],
+      "truncated": false,
+      "variables": [
+       "person",
+       "name",
+       "salary"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "kind": "markdown",
+   "language": "markdown",
+   "value": "## Chains of command, with Datalog\n\n`rules/org.dl` derives `ex:reportsTo` recursively. A program with a goal runs like a query.",
+   "outputs": []
+  },
+  {
+   "kind": "code",
+   "language": "datalog",
+   "value": "@prefix ex: <https://example.org/> .\n\nchain(?who, ?boss) :- ex:reportsTo(?who, ?boss).\n\n?- chain(?who, ?boss).",
+   "outputs": [
+    {
+     "title": "cell 2",
+     "payload": {
+      "elapsedMs": 0.148125,
+      "kind": "solutions",
+      "rows": [
+       [
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/eve"
+        },
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/bob"
+        }
+       ],
+       [
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/eve"
+        },
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/ada"
+        }
+       ],
+       [
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/bob"
+        },
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/ada"
+        }
+       ],
+       [
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/cyd"
+        },
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/ada"
+        }
+       ]
+      ],
+      "truncated": false,
+      "variables": [
+       "who",
+       "boss"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "kind": "markdown",
+   "language": "markdown",
+   "value": "## The same organisation as a property graph\n\nCypher labels and relationship types resolve to the data's own namespace. Switch the result to **graph**.",
+   "outputs": []
+  },
+  {
+   "kind": "code",
+   "language": "cypher",
+   "value": "MATCH p = (m:Manager)-[:manages*1..2]->(e)\nRETURN p",
+   "outputs": [
+    {
+     "title": "cell 3",
+     "payload": {
+      "columns": [
+       "p"
+      ],
+      "elapsedMs": 0.892042,
+      "ephemeral": true,
+      "kind": "cypher",
+      "rows": [
+       [
+        {
+         "nodes": [
+          {
+           "id": "https://example.org/ada",
+           "labels": [
+            "Manager"
+           ],
+           "properties": {
+            "name": "Ada Lovelace",
+            "salary": 120000
+           },
+           "type": "node"
+          },
+          {
+           "id": "https://example.org/bob",
+           "labels": [],
+           "properties": {
+            "name": "Bob Stone",
+            "salary": 90000
+           },
+           "type": "node"
+          }
+         ],
+         "relationships": [
+          {
+           "end": "https://example.org/bob",
+           "id": "<<( https://example.org/ada <https://example.org/manages> https://example.org/bob )>>",
+           "properties": {},
+           "relType": "manages",
+           "start": "https://example.org/ada",
+           "type": "relationship"
+          }
+         ],
+         "type": "path"
+        }
+       ],
+       [
+        {
+         "nodes": [
+          {
+           "id": "https://example.org/ada",
+           "labels": [
+            "Manager"
+           ],
+           "properties": {
+            "name": "Ada Lovelace",
+            "salary": 120000
+           },
+           "type": "node"
+          },
+          {
+           "id": "https://example.org/cyd",
+           "labels": [],
+           "properties": {
+            "name": "Cyd Park",
+            "salary": 85000
+           },
+           "type": "node"
+          }
+         ],
+         "relationships": [
+          {
+           "end": "https://example.org/cyd",
+           "id": "<<( https://example.org/ada <https://example.org/manages> https://example.org/cyd )>>",
+           "properties": {},
+           "relType": "manages",
+           "start": "https://example.org/ada",
+           "type": "relationship"
+          }
+         ],
+         "type": "path"
+        }
+       ],
+       [
+        {
+         "nodes": [
+          {
+           "id": "https://example.org/bob",
+           "labels": [],
+           "properties": {
+            "name": "Bob Stone",
+            "salary": 90000
+           },
+           "type": "node"
+          },
+          {
+           "id": "https://example.org/eve",
+           "labels": [],
+           "properties": {
+            "salary": 70000
+           },
+           "type": "node"
+          }
+         ],
+         "relationships": [
+          {
+           "end": "https://example.org/eve",
+           "id": "<<( https://example.org/bob <https://example.org/manages> https://example.org/eve )>>",
+           "properties": {},
+           "relType": "manages",
+           "start": "https://example.org/bob",
+           "type": "relationship"
+          }
+         ],
+         "type": "path"
+        }
+       ],
+       [
+        {
+         "nodes": [
+          {
+           "id": "https://example.org/ada",
+           "labels": [
+            "Manager"
+           ],
+           "properties": {
+            "name": "Ada Lovelace",
+            "salary": 120000
+           },
+           "type": "node"
+          },
+          {
+           "id": "https://example.org/bob",
+           "labels": [],
+           "properties": {
+            "name": "Bob Stone",
+            "salary": 90000
+           },
+           "type": "node"
+          },
+          {
+           "id": "https://example.org/eve",
+           "labels": [],
+           "properties": {
+            "salary": 70000
+           },
+           "type": "node"
+          }
+         ],
+         "relationships": [
+          {
+           "end": "https://example.org/bob",
+           "id": "<<( https://example.org/ada <https://example.org/manages> https://example.org/bob )>>",
+           "properties": {},
+           "relType": "manages",
+           "start": "https://example.org/ada",
+           "type": "relationship"
+          },
+          {
+           "end": "https://example.org/eve",
+           "id": "<<( https://example.org/bob <https://example.org/manages> https://example.org/eve )>>",
+           "properties": {},
+           "relType": "manages",
+           "start": "https://example.org/bob",
+           "type": "relationship"
+          }
+         ],
+         "type": "path"
+        }
+       ]
+      ],
+      "stats": {
+       "labelsAdded": 0,
+       "labelsRemoved": 0,
+       "nodesCreated": 0,
+       "nodesDeleted": 0,
+       "propertiesSet": 0,
+       "relationshipsCreated": 0,
+       "relationshipsDeleted": 0
+      },
+      "truncated": false,
+      "writes": false
+     }
+    }
+   ]
+  },
+  {
+   "kind": "markdown",
+   "language": "markdown",
+   "value": "## A graph you can see\n\nCONSTRUCT results draw as a graph too. Inferred `reportsTo` edges come from the rules.",
+   "outputs": []
+  },
+  {
+   "kind": "code",
+   "language": "sparql",
+   "value": "PREFIX ex: <https://example.org/>\n\nCONSTRUCT {\n  ?e ex:reportsTo ?m .\n  ?e ex:worksFor ?c .\n} WHERE {\n  ?e ex:reportsTo ?m .\n  OPTIONAL { ?e ex:worksFor ?c }\n}",
+   "outputs": [
+    {
+     "title": "cell 4",
+     "payload": {
+      "elapsedMs": 0.111667,
+      "kind": "quads",
+      "quads": [
+       {
+        "graph": {
+         "termType": "DefaultGraph",
+         "value": ""
+        },
+        "object": {
+         "termType": "NamedNode",
+         "value": "https://example.org/bob"
+        },
+        "predicate": {
+         "termType": "NamedNode",
+         "value": "https://example.org/reportsTo"
+        },
+        "subject": {
+         "termType": "NamedNode",
+         "value": "https://example.org/eve"
+        },
+        "termType": "Quad",
+        "value": ""
+       },
+       {
+        "graph": {
+         "termType": "DefaultGraph",
+         "value": ""
+        },
+        "object": {
+         "termType": "NamedNode",
+         "value": "https://example.org/acme"
+        },
+        "predicate": {
+         "termType": "NamedNode",
+         "value": "https://example.org/worksFor"
+        },
+        "subject": {
+         "termType": "NamedNode",
+         "value": "https://example.org/eve"
+        },
+        "termType": "Quad",
+        "value": ""
+       },
+       {
+        "graph": {
+         "termType": "DefaultGraph",
+         "value": ""
+        },
+        "object": {
+         "termType": "NamedNode",
+         "value": "https://example.org/ada"
+        },
+        "predicate": {
+         "termType": "NamedNode",
+         "value": "https://example.org/reportsTo"
+        },
+        "subject": {
+         "termType": "NamedNode",
+         "value": "https://example.org/eve"
+        },
+        "termType": "Quad",
+        "value": ""
+       },
+       {
+        "graph": {
+         "termType": "DefaultGraph",
+         "value": ""
+        },
+        "object": {
+         "termType": "NamedNode",
+         "value": "https://example.org/ada"
+        },
+        "predicate": {
+         "termType": "NamedNode",
+         "value": "https://example.org/reportsTo"
+        },
+        "subject": {
+         "termType": "NamedNode",
+         "value": "https://example.org/bob"
+        },
+        "termType": "Quad",
+        "value": ""
+       },
+       {
+        "graph": {
+         "termType": "DefaultGraph",
+         "value": ""
+        },
+        "object": {
+         "termType": "NamedNode",
+         "value": "https://example.org/acme"
+        },
+        "predicate": {
+         "termType": "NamedNode",
+         "value": "https://example.org/worksFor"
+        },
+        "subject": {
+         "termType": "NamedNode",
+         "value": "https://example.org/bob"
+        },
+        "termType": "Quad",
+        "value": ""
+       },
+       {
+        "graph": {
+         "termType": "DefaultGraph",
+         "value": ""
+        },
+        "object": {
+         "termType": "NamedNode",
+         "value": "https://example.org/ada"
+        },
+        "predicate": {
+         "termType": "NamedNode",
+         "value": "https://example.org/reportsTo"
+        },
+        "subject": {
+         "termType": "NamedNode",
+         "value": "https://example.org/cyd"
+        },
+        "termType": "Quad",
+        "value": ""
+       },
+       {
+        "graph": {
+         "termType": "DefaultGraph",
+         "value": ""
+        },
+        "object": {
+         "termType": "NamedNode",
+         "value": "https://example.org/acme"
+        },
+        "predicate": {
+         "termType": "NamedNode",
+         "value": "https://example.org/worksFor"
+        },
+        "subject": {
+         "termType": "NamedNode",
+         "value": "https://example.org/cyd"
+        },
+        "termType": "Quad",
+        "value": ""
+       }
+      ],
+      "truncated": false
+     }
+    }
+   ]
+  },
+  {
+   "kind": "markdown",
+   "language": "markdown",
+   "value": "## Who breaks the rules?\n\n`ex:PersonShape` wants every person to have a name. `ex:eve` has none: the Problems panel shows it on her line in `data/people.ttl`. The same check as a query:",
+   "outputs": []
+  },
+  {
+   "kind": "code",
+   "language": "sparql",
+   "value": "PREFIX ex: <https://example.org/>\n\nSELECT ?person WHERE {\n  ?person a ex:Person .\n  FILTER NOT EXISTS { ?person ex:name ?n }\n}",
+   "outputs": [
+    {
+     "title": "cell 3",
+     "payload": {
+      "elapsedMs": 0.204042,
+      "kind": "solutions",
+      "rows": [
+       [
+        {
+         "termType": "NamedNode",
+         "value": "https://example.org/eve"
+        }
+       ]
+      ],
+      "truncated": false,
+      "variables": [
+       "person"
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}
