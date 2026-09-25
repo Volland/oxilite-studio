@@ -2,5 +2,5 @@ This directory defines the high-level concepts, business logic, and architecture
 
 - [[architecture]] — process model, connections, reload pipeline, reasoning, validation, language support, views and packaging
 - [[decisions]] — design decisions from the 2026-09-24 interview with their rationale
-- [[milestones]] — delivery plan from the walking skeleton to v1.1
+- [[milestones]] — delivery plan from the walking skeleton to v1.2, and what is planned next
 - [[tests]] — test specifications for the extension and the server round trip

@@ -36,6 +36,14 @@ Completion, hover and vocabulary warnings follow the same connection: [[src/pins
 
 Roles are data, ontology, shapes and rules. Shapes are not loaded as data. A manifest graph IRI is a view over the per-file graphs mapped to it ([[architecture#Reload pipeline]]). A "Create manifest" command writes one from the detected conventions. See [[decisions#S4 Convention first, manifest optional]].
 
+### New project and new database
+
+"New Project…" scaffolds a folder that `oxilite check` passes; "New SQLite Database…" creates an empty database and attaches it read-write as the active connection.
+
+The scaffold ([[shared/scaffold.ts#scaffold]]) writes a manifest, an ontology, data, a SHACL shape, recursive rules, an example query, an entailment test and a violation test, all under the namespace the user picks (bound to `ex:`), plus a `.gitignore` for `.oxilite/`. Existing files are never overwritten (an existing `.gitignore` gets the missing lines), and a folder that already has `oxilite.toml` is refused. In the open workspace the store reloads and the query opens; elsewhere the user is offered to open the folder.
+
+A database is created by attaching a path that does not exist (the server creates it). With "Files and a SQLite database", the project gets `db/<name>.sqlite`, detached again so the example query stays on the Project store, and `queries/database.rq` pinned to it read-write ([[architecture#Connections#Pinned documents]]). "New SQLite Database…" never truncates: choosing an existing file attaches it as it is. Afterwards it offers an import or an untitled query pinned to the new file. See [[src/scaffold.ts#newProject]] and [[src/scaffold.ts#newDatabase]].
+
 ## Reload pipeline
 
 Keystrokes give parse diagnostics from the buffer; a save replaces that file's quads in one atomic request, then re-reasons and revalidates only what changed.

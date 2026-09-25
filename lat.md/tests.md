@@ -62,6 +62,10 @@ A SELECT and a CONSTRUCT come back in shapes `toTable` and `formatTerm` render, 
 
 A Datalog goal and a Cypher path come back in the shapes the views use (the path draws as a graph), a workspace rule's conclusion is explained down to an asserted premise, and the explorer lists its folders.
 
+### Attaching a new path creates the database
+
+Attaching a SQLite path that does not exist creates the file as an empty, active, read-write connection whose confirmed updates persist; detaching returns to the Project store.
+
 ### Bad query rejects
 
 A query that does not parse rejects the request instead of crashing the server.
@@ -81,3 +85,19 @@ Only the leading comment block is read, so a pin-like comment after the first qu
 ### References round-trip and resolve
 
 A reference survives being saved to notebook metadata, resolves to the server's connection id, and a workspace path is stored relative to the workspace.
+
+## New project
+
+The files "New Project…" writes, see [[architecture#Project manifest#New project and new database]].
+
+### Names and namespaces are normalized
+
+A project name becomes a file-safe slug, a base IRI gains a trailing `/` unless it ends in `/` or `#`, and only absolute IRIs without forbidden characters are accepted.
+
+### The database query is pinned
+
+With a database, `queries/database.rq` carries a read-write pin to it, and an existing `.gitignore` gets only the lines it lacks.
+
+### A new project passes oxilite check
+
+The scaffold written to an empty folder passes `oxilite check` (both manifest tests, no SHACL violations) under every reasoning profile; skipped when no binary is found.

@@ -56,4 +56,22 @@ Notebooks, the ontology diagram, a Datalog debugger, full-text search UI and ShE
 
 Status: done (2026-09-24).
 
-Deferred further (v2): JSON-LD and Verifiable Credentials browsing, schema diff, in-editor chat, generic SPARQL endpoints, W3C `mf:` test manifests.
+## v1.2 Starting a project
+
+"New Project…" scaffolds a folder that passes `oxilite check`, optionally with a SQLite database and a query pinned to it; "New SQLite Database…" creates and attaches an empty database.
+
+See [[architecture#Project manifest#New project and new database]]. Tested by [[tests#New project]] and [[tests#Server end to end#Attaching a new path creates the database]].
+
+Status: done (2026-09-25), released in 0.1.4. The commands are covered by unit and end-to-end tests, but the dialogs have not been exercised in a running VS Code window.
+
+## v1.3 Manifest from conventions
+
+A "Create manifest" command that writes `oxilite.toml` for an existing folder from the roles and graphs the server already detects, so a convention-only project can adopt the manifest.
+
+[[architecture#Project manifest]] describes this command, but it is not implemented yet. New Project writes a manifest only for the files it creates itself. See [[decisions#S4 Convention first, manifest optional]].
+
+Status: planned.
+
+## v2 Deferred
+
+Work left out of v1 on purpose, to be planned after it ships: JSON-LD and Verifiable Credentials browsing, schema diff, in-editor chat, generic SPARQL endpoints, W3C `mf:` test manifests.
