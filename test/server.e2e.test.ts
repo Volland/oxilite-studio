@@ -7,7 +7,7 @@ import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createMessageConnection, StreamMessageReader, StreamMessageWriter, type MessageConnection } from 'vscode-jsonrpc/node';
-import { Methods, type ExplorerNode, type ProofNode, type QueryPayload, type StoreStatus } from '../shared/protocol';
+import { Methods, type Connection, type ExplorerNode, type ProofNode, type QueryPayload, type StoreStatus } from '../shared/protocol';
 import { graphOf } from '../shared/graph';
 import { formatTerm, toTable } from '../shared/terms';
 
@@ -95,6 +95,24 @@ run('studio-server end to end', () => {
     expect(tree.premises?.[0].status).toBe('asserted');
     const root = await rpc.sendRequest<ExplorerNode[]>(Methods.explorer, { node: 'root' });
     expect(root.map((n) => n.id)).toContain('classes');
+  });
+
+  // @lat: [[tests#Server end to end#Attaching a new path creates the database]]
+  it('creates a database when attaching a path that does not exist', async () => {
+    const file = path.join(dir, 'db', 'new.sqlite');
+    fs.mkdirSync(path.dirname(file));
+    const list = await rpc.sendRequest<Connection[]>(Methods.attach, { path: file, readOnly: false });
+    expect(fs.existsSync(file)).toBe(true);
+    const created = list.find((c) => c.path === file)!;
+    expect(created).toMatchObject({ active: true, readOnly: false, triples: 0 });
+    // Updates on an attached store ask first; confirmed, they persist in the new file.
+    const insert = { query: 'INSERT DATA { <http://ex.org/a> <http://ex.org/p> 1 }', connection: created.id };
+    await expect(rpc.sendRequest(Methods.query, insert)).rejects.toThrow();
+    await rpc.sendRequest(Methods.query, { ...insert, confirmed: true });
+    const rows = await rpc.sendRequest<QueryPayload>(Methods.query, { query: 'SELECT * { ?s ?p ?o }', connection: created.id });
+    expect(toTable(rows).rows).toHaveLength(1);
+    const after = await rpc.sendRequest<Connection[]>(Methods.detach, { id: created.id });
+    expect(after.find((c) => c.active)?.id).toBe('project');
   });
 
   // @lat: [[tests#Server end to end#Bad query rejects]]

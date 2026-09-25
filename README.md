@@ -33,6 +33,13 @@ RDFS/OWL reasoning, SHACL and ShEx validation, over RDF stored in SQLite or Clou
 - **Agents.** `oxilite mcp` serves query, schema, validate and why as MCP tools; the extension
   registers it, and "Copy MCP Server Config" gives the same for other agents.
 
+## Starting a project
+
+**oxilite: New Project…** scaffolds a folder with a manifest, an ontology, data, a SHACL shape,
+rules, a query and two tests, ready for `oxilite check`. It can also create a SQLite database
+under `db/` with a query pinned to it. **oxilite: New SQLite Database…** creates an empty database
+and makes it the active connection. Both are on the Connections view's title bar.
+
 ## A manifest
 
 ```toml

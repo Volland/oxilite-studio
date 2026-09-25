@@ -29,6 +29,7 @@ import { connectionId, parsePin } from '../shared/pin';
 import { fromOntology, type Ontology } from '../shared/graph';
 import { QueryHistory, type HistoryEntry } from './history';
 import { ResultsPanels } from './resultsPanel';
+import { newDatabase, newProject, PROFILES } from './scaffold';
 
 let client: LanguageClient | undefined;
 
@@ -267,6 +268,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       );
       refreshStatus();
     }),
+    vscode.commands.registerCommand('oxilite.newProject', () => newProject(() => client, onAttached)),
+    vscode.commands.registerCommand('oxilite.newDatabase', () => newDatabase(() => client, onAttached)),
     vscode.commands.registerCommand('oxilite.detachStore', async (c?: Connection) => {
       const target = c ?? (await pickConnection(connections.all.filter((x) => x.kind !== 'project')));
       if (!client || !target) return;
@@ -312,15 +315,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         void vscode.window.showInformationMessage('The reasoning profile is set by oxilite.toml.');
         return;
       }
-      const picked = await vscode.window.showQuickPick(
-        [
-          { label: 'none', detail: 'Asserted triples only' },
-          { label: 'rdfs', detail: 'Query-time RDFS: subclasses, subproperties, domains and ranges' },
-          { label: 'owlql', detail: 'Query-time RDFS plus inverse, symmetric and transitive properties' },
-          { label: 'owl2rl', detail: 'Materialized OWL 2 RL closure (recomputed when data changes)' },
-        ],
-        { placeHolder: `Reasoning profile (now ${project?.profile ?? 'none'})` },
-      );
+      const picked = await vscode.window.showQuickPick(PROFILES, { placeHolder: `Reasoning profile (now ${project?.profile ?? 'none'})` });
       if (!picked) return;
       await vscode.workspace.getConfiguration('oxilite').update('reasoning.profile', picked.label, vscode.ConfigurationTarget.Workspace);
       project = await client.sendRequest<StoreStatus>(Methods.setReasoning, { profile: picked.label });

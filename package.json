@@ -2,7 +2,7 @@
   "name": "oxilite-studio",
   "displayName": "oxilite studio",
   "description": "A development studio for oxilite: SPARQL, reasoning, SHACL and Datalog over RDF on SQLite.",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "publisher": "pavlyshyn",
   "license": "MIT OR Apache-2.0",
   "repository": {
@@ -142,8 +142,20 @@
         "category": "oxilite"
       },
       {
+        "command": "oxilite.newProject",
+        "title": "New Project…",
+        "category": "oxilite",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "oxilite.newDatabase",
+        "title": "New SQLite Database…",
+        "category": "oxilite",
+        "icon": "$(database)"
+      },
+      {
         "command": "oxilite.attachStore",
-        "title": "Attach SQLite Store\u2026",
+        "title": "Attach SQLite Store…",
         "category": "oxilite",
         "icon": "$(add)"
       },
@@ -193,7 +205,7 @@
       },
       {
         "command": "oxilite.setReasoning",
-        "title": "Set Reasoning Profile\u2026",
+        "title": "Set Reasoning Profile…",
         "category": "oxilite",
         "icon": "$(lightbulb)"
       },
@@ -205,19 +217,19 @@
       },
       {
         "command": "oxilite.importFile",
-        "title": "Import RDF File into Connection\u2026",
+        "title": "Import RDF File into Connection…",
         "category": "oxilite",
         "icon": "$(cloud-upload)"
       },
       {
         "command": "oxilite.exportStore",
-        "title": "Export Connection to File\u2026",
+        "title": "Export Connection to File…",
         "category": "oxilite",
         "icon": "$(cloud-download)"
       },
       {
         "command": "oxilite.exportGraph",
-        "title": "Export Graph to File\u2026",
+        "title": "Export Graph to File…",
         "category": "oxilite"
       },
       {
@@ -228,18 +240,18 @@
       },
       {
         "command": "oxilite.attachD1",
-        "title": "Attach Cloudflare D1 Database\u2026",
+        "title": "Attach Cloudflare D1 Database…",
         "category": "oxilite",
         "icon": "$(cloud)"
       },
       {
         "command": "oxilite.attachLocalD1",
-        "title": "Attach Local D1 (wrangler dev)\u2026",
+        "title": "Attach Local D1 (wrangler dev)…",
         "category": "oxilite"
       },
       {
         "command": "oxilite.materialize",
-        "title": "Materialize OWL 2 RL on Connection\u2026",
+        "title": "Materialize OWL 2 RL on Connection…",
         "category": "oxilite"
       },
       {
@@ -267,7 +279,7 @@
       },
       {
         "command": "oxilite.textSearch",
-        "title": "Full-Text Search\u2026",
+        "title": "Full-Text Search…",
         "category": "oxilite",
         "icon": "$(search)"
       }
@@ -291,6 +303,16 @@
         }
       ],
       "view/title": [
+        {
+          "command": "oxilite.newProject",
+          "when": "view == oxilite.connections",
+          "group": "navigation@0"
+        },
+        {
+          "command": "oxilite.newDatabase",
+          "when": "view == oxilite.connections",
+          "group": "navigation@0"
+        },
         {
           "command": "oxilite.attachStore",
           "when": "view == oxilite.connections",
@@ -504,6 +526,13 @@
           "application/vnd.oxilite.result+json"
         ],
         "requiresMessaging": "optional"
+      }
+    ],
+    "viewsWelcome": [
+      {
+        "view": "oxilite.explorer",
+        "contents": "No oxilite project here yet.\n[New Project](command:oxilite.newProject)\n[New SQLite Database](command:oxilite.newDatabase)",
+        "when": "workbenchState == empty"
       }
     ]
   },
