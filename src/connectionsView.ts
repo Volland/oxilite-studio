@@ -6,11 +6,15 @@ import type { Connection } from '../shared/protocol';
 export class ConnectionsView implements vscode.TreeDataProvider<Connection> {
   private readonly changed = new vscode.EventEmitter<void>();
   readonly onDidChangeTreeData = this.changed.event;
+  private readonly listChanged = new vscode.EventEmitter<Connection[]>();
+  /** The connections list changed (notebook kernels follow it). */
+  readonly onDidChangeConnections = this.listChanged.event;
   private items: Connection[] = [];
 
   set(items: Connection[]): void {
     this.items = items;
     this.changed.fire();
+    this.listChanged.fire(items);
   }
 
   get active(): Connection | undefined {

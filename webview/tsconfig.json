@@ -10,5 +10,6 @@
     "noEmit": true,
     "types": ["vite/client", "vscode-notebook-renderer"]
   },
-  "include": ["src", "../shared"]
+  "include": ["src", "../shared"],
+  "exclude": ["../shared/pin.ts"]
 }

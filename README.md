@@ -26,8 +26,10 @@ RDFS/OWL reasoning, SHACL and ShEx validation, over RDF stored in SQLite or Clou
 - **Tests.** `[[test]]` entries in `oxilite.toml` (query results, SHACL, entailments) run in
   Test Explorer and in CI with `oxilite check`.
 - **Connections.** Attach SQLite files, a `wrangler dev` D1 database, or a remote D1 database
-  (read-only by default, with billed rows shown for every request).
-- **Notebooks** (`.oxnb`) with SPARQL, Datalog and Cypher cells.
+  (read-only by default, with billed rows shown for every request). A query file can pin its
+  own connection with a first-line comment such as `# oxilite: connection = data/prod.sqlite`.
+- **Notebooks** (`.oxnb`) with SPARQL, Datalog and Cypher cells, and a kernel per connection;
+  the notebook remembers the one you choose.
 - **Agents.** `oxilite mcp` serves query, schema, validate and why as MCP tools; the extension
   registers it, and "Copy MCP Server Config" gives the same for other agents.
 

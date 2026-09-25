@@ -23,7 +23,9 @@ import { ConnectionsView } from './connectionsView';
 import { ExplorerView } from './explorerView';
 import { openLocation, SinglePanel } from './panels';
 import { KgTests } from './testing';
-import { NOTEBOOK_TYPE, OxNotebookController, OxNotebookSerializer } from './notebook';
+import { NOTEBOOK_TYPE, OxNotebookKernels, OxNotebookSerializer } from './notebook';
+import { d1Secret, ensureConnection, PinLenses } from './pins';
+import { parsePin } from '../shared/pin';
 import { fromOntology, type Ontology } from '../shared/graph';
 import { QueryHistory, type HistoryEntry } from './history';
 import { ResultsPanels } from './resultsPanel';
@@ -62,10 +64,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const diagram = new SinglePanel(context.extensionUri, 'oxilite.ontology', onViewMessage);
   const debugPanel = new SinglePanel(context.extensionUri, 'oxilite.debug', onViewMessage);
   const search = new SinglePanel(context.extensionUri, 'oxilite.search', onViewMessage);
-  const notebooks = new OxNotebookController(() => client, () => connections.active?.path ?? 'the store');
+  const notebooks = new OxNotebookKernels(() => client, context.secrets, (list) => {
+    connections.set(list);
+    refreshStatus();
+  });
+  const pinLenses = new PinLenses();
   const messaging = vscode.notebooks.createRendererMessaging('oxilite-renderer');
   messaging.onDidReceiveMessage((e) => onViewMessage(e.message as FromView));
   const connections = new ConnectionsView();
+  connections.onDidChangeConnections((list) => notebooks.sync(list));
   const history = new QueryHistory(context.workspaceState);
   const explorer = new ExplorerView(() => client);
   let project: StoreStatus | undefined;
@@ -91,6 +98,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     debugPanel,
     search,
     notebooks,
+    vscode.languages.registerCodeLensProvider([{ language: 'sparql' }, { language: 'datalog' }, { language: 'cypher' }], pinLenses),
     vscode.workspace.registerNotebookSerializer(NOTEBOOK_TYPE, new OxNotebookSerializer()),
     vscode.window.registerTreeDataProvider('oxilite.connections', connections),
     vscode.window.registerTreeDataProvider('oxilite.explorer', explorer),
@@ -98,7 +106,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   );
 
   const d1Key = 'oxilite.d1Connections';
-  const d1Secret = (account: string, database: string) => `oxilite.d1.${account}.${database}`;
   const attachD1 = async (account: string, database: string, readOnly: boolean): Promise<boolean> => {
     const token = await context.secrets.get(d1Secret(account, database));
     if (!client || !token) return false;
@@ -143,16 +150,33 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     refreshStatus();
   };
 
+  /** The connection a document runs on: its pin, else the active connection. */
+  const targetOf = async (document: vscode.TextDocument): Promise<Connection | undefined> => {
+    const pin = parsePin(document.getText(), document.languageId);
+    if (!pin || !client) return connections.active;
+    return ensureConnection(client, pin.ref, () => connections.all, context.secrets, (list) => {
+      connections.set(list);
+      refreshStatus();
+    });
+  };
+
   const run = async (text: string | undefined, document: vscode.TextDocument): Promise<void> => {
     if (!client || text === undefined) return;
-    const title = document.uri.path.split('/').pop() ?? 'query';
     const panel = panels.show(document);
+    let target: Connection | undefined;
+    try {
+      target = await targetOf(document);
+    } catch (e) {
+      panels.post(panel, { type: 'error', title: document.uri.path.split('/').pop() ?? 'query', message: e instanceof Error ? e.message : String(e) });
+      return;
+    }
+    const title = `${document.uri.path.split('/').pop() ?? 'query'} · ${target?.label ?? 'Project store'}`;
     panels.post(panel, { type: 'running', title });
     const limit = vscode.workspace.getConfiguration('oxilite').get<number>('query.rowLimit', 10000);
-    const params: QueryParams = { query: text, limit };
+    const params: QueryParams = { query: text, limit, connection: target?.id };
     const method = document.languageId === 'datalog' ? Methods.datalog : document.languageId === 'cypher' ? Methods.cypher : Methods.query;
     try {
-      const payload = await sendWithConfirmation<QueryParams, QueryPayload>(client, method, params, connections.active);
+      const payload = await sendWithConfirmation<QueryParams, QueryPayload>(client, method, params, target);
       if (!payload) {
         panels.post(panel, { type: 'error', title, message: 'Update cancelled.' });
         return;
@@ -161,7 +185,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       await history.add({
         query: text,
         language: document.languageId,
-        connection: connections.active?.label ?? 'Project store',
+        connection: target?.label ?? 'Project store',
         time: Date.now(),
         summary: summarize(payload),
       });
@@ -180,16 +204,19 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('oxilite.explainQuery', async () => {
       const editor = vscode.window.activeTextEditor;
       if (!editor || !client) return;
-      const title = `plan of ${editor.document.uri.path.split('/').pop()}`;
       const panel = panels.show(editor.document);
+      const name = editor.document.uri.path.split('/').pop();
       try {
+        const target = await targetOf(editor.document);
+        const title = `plan of ${name} · ${target?.label ?? 'Project store'}`;
         const plan = await client.sendRequest<Plan>(Methods.explain, {
           query: selectionOrAll(editor),
           language: editor.document.languageId,
+          connection: target?.id,
         });
         panels.post(panel, { type: 'plan', title, plan });
       } catch (e) {
-        panels.post(panel, { type: 'error', title, message: e instanceof Error ? e.message : String(e) });
+        panels.post(panel, { type: 'error', title: `plan of ${name}`, message: e instanceof Error ? e.message : String(e) });
       }
     }),
     vscode.commands.registerCommand('oxilite.reloadStore', async () => {

@@ -1,16 +1,19 @@
 {
+ "metadata": {
+  "oxilite": {
+   "connection": "project"
+  }
+ },
  "cells": [
   {
    "kind": "markdown",
    "language": "markdown",
-   "value": "# oxilite studio: a company knowledge graph\n\nThis notebook runs against the demo's **Project store**: `data/people.ttl`, the ontology in `ontology/`, and the rules in `rules/org.dl`, with **OWL 2 RL** reasoning (see `oxilite.toml`). Run a cell with the ▶ next to it; results are saved in the notebook.",
-   "outputs": []
+   "value": "# oxilite studio: a company knowledge graph\n\nThis notebook runs against the demo's **Project store**: `data/people.ttl`, the ontology in `ontology/`, and the rules in `rules/org.dl`, with **OWL 2 RL** reasoning (see `oxilite.toml`). Run a cell with the ▶ next to it; results are saved in the notebook."
   },
   {
    "kind": "markdown",
    "language": "markdown",
-   "value": "## Who is a person?\n\nNo triple says `a ex:Person`. The ontology says managers are employees and employees are persons, and `ex:worksFor` has the domain `ex:Employee`, so OWL 2 RL infers the rest.",
-   "outputs": []
+   "value": "## Who is a person?\n\nNo triple says `a ex:Person`. The ontology says managers are employees and employees are persons, and `ex:worksFor` has the domain `ex:Employee`, so OWL 2 RL infers the rest."
   },
   {
    "kind": "code",
@@ -18,9 +21,9 @@
    "value": "PREFIX ex: <https://example.org/>\n\nSELECT ?person ?name ?salary WHERE {\n  ?person a ex:Person .\n  OPTIONAL { ?person ex:name ?name }\n  OPTIONAL { ?person ex:salary ?salary }\n}\nORDER BY DESC(?salary)",
    "outputs": [
     {
-     "title": "cell 1",
+     "title": "cell 1 · Project store",
      "payload": {
-      "elapsedMs": 0.375458,
+      "elapsedMs": 0.721542,
       "kind": "solutions",
       "rows": [
        [
@@ -118,15 +121,15 @@
        "name",
        "salary"
       ]
-     }
+     },
+     "connection": "Project store"
     }
    ]
   },
   {
    "kind": "markdown",
    "language": "markdown",
-   "value": "## Chains of command, with Datalog\n\n`rules/org.dl` derives `ex:reportsTo` recursively. A program with a goal runs like a query.",
-   "outputs": []
+   "value": "## Chains of command, with Datalog\n\n`rules/org.dl` derives `ex:reportsTo` recursively. A program with a goal runs like a query."
   },
   {
    "kind": "code",
@@ -134,9 +137,9 @@
    "value": "@prefix ex: <https://example.org/> .\n\nchain(?who, ?boss) :- ex:reportsTo(?who, ?boss).\n\n?- chain(?who, ?boss).",
    "outputs": [
     {
-     "title": "cell 2",
+     "title": "cell 2 · Project store",
      "payload": {
-      "elapsedMs": 0.148125,
+      "elapsedMs": 0.079167,
       "kind": "solutions",
       "rows": [
        [
@@ -185,15 +188,15 @@
        "who",
        "boss"
       ]
-     }
+     },
+     "connection": "Project store"
     }
    ]
   },
   {
    "kind": "markdown",
    "language": "markdown",
-   "value": "## The same organisation as a property graph\n\nCypher labels and relationship types resolve to the data's own namespace. Switch the result to **graph**.",
-   "outputs": []
+   "value": "## The same organisation as a property graph\n\nCypher labels and relationship types resolve to the data's own namespace. Switch the result to **graph**."
   },
   {
    "kind": "code",
@@ -201,12 +204,12 @@
    "value": "MATCH p = (m:Manager)-[:manages*1..2]->(e)\nRETURN p",
    "outputs": [
     {
-     "title": "cell 3",
+     "title": "cell 3 · Project store",
      "payload": {
       "columns": [
        "p"
       ],
-      "elapsedMs": 0.892042,
+      "elapsedMs": 1.852417,
       "ephemeral": true,
       "kind": "cypher",
       "rows": [
@@ -383,15 +386,15 @@
       },
       "truncated": false,
       "writes": false
-     }
+     },
+     "connection": "Project store"
     }
    ]
   },
   {
    "kind": "markdown",
    "language": "markdown",
-   "value": "## A graph you can see\n\nCONSTRUCT results draw as a graph too. Inferred `reportsTo` edges come from the rules.",
-   "outputs": []
+   "value": "## A graph you can see\n\nCONSTRUCT results draw as a graph too. Inferred `reportsTo` edges come from the rules."
   },
   {
    "kind": "code",
@@ -399,9 +402,9 @@
    "value": "PREFIX ex: <https://example.org/>\n\nCONSTRUCT {\n  ?e ex:reportsTo ?m .\n  ?e ex:worksFor ?c .\n} WHERE {\n  ?e ex:reportsTo ?m .\n  OPTIONAL { ?e ex:worksFor ?c }\n}",
    "outputs": [
     {
-     "title": "cell 4",
+     "title": "cell 4 · Project store",
      "payload": {
-      "elapsedMs": 0.111667,
+      "elapsedMs": 0.19141699999999998,
       "kind": "quads",
       "quads": [
        {
@@ -546,15 +549,15 @@
        }
       ],
       "truncated": false
-     }
+     },
+     "connection": "Project store"
     }
    ]
   },
   {
    "kind": "markdown",
    "language": "markdown",
-   "value": "## Who breaks the rules?\n\n`ex:PersonShape` wants every person to have a name. `ex:eve` has none: the Problems panel shows it on her line in `data/people.ttl`. The same check as a query:",
-   "outputs": []
+   "value": "## Who breaks the rules?\n\n`ex:PersonShape` wants every person to have a name. `ex:eve` has none: the Problems panel shows it on her line in `data/people.ttl`. The same check as a query:"
   },
   {
    "kind": "code",
@@ -562,9 +565,9 @@
    "value": "PREFIX ex: <https://example.org/>\n\nSELECT ?person WHERE {\n  ?person a ex:Person .\n  FILTER NOT EXISTS { ?person ex:name ?n }\n}",
    "outputs": [
     {
-     "title": "cell 3",
+     "title": "cell 5 · Project store",
      "payload": {
-      "elapsedMs": 0.204042,
+      "elapsedMs": 0.094417,
       "kind": "solutions",
       "rows": [
        [
@@ -578,7 +581,8 @@
       "variables": [
        "person"
       ]
-     }
+     },
+     "connection": "Project store"
     }
    ]
   }
