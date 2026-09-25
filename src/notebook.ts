@@ -91,8 +91,11 @@ export class OxNotebookKernels implements vscode.Disposable {
   /** Notebooks waiting for a kernel that does not exist yet, by connection id. */
   private readonly preferred = new Map<string, Set<vscode.NotebookDocument>>();
   private readonly disposables: vscode.Disposable[] = [];
-  /** The kernel each open notebook has selected, by notebook uri. */
+  /** The connection of the kernel each open notebook has selected, by notebook uri. */
   private readonly selected = new Map<string, string>();
+  private readonly selectionChanged = new vscode.EventEmitter<vscode.NotebookDocument>();
+  /** Fires when a notebook's kernel, and so its cells' connection, changes. */
+  readonly onDidChangeConnection = this.selectionChanged.event;
 
   constructor(
     private readonly client: () => LanguageClient | undefined,
@@ -131,9 +134,10 @@ export class OxNotebookKernels implements vscode.Disposable {
       k.onDidChangeSelectedNotebooks(({ notebook, selected }) => {
         const key = notebook.uri.toString();
         if (selected) {
-          this.selected.set(key, kernelId);
+          this.selected.set(key, c.id);
           void this.remember(notebook, c.id);
-        } else if (this.selected.get(key) === kernelId) this.selected.delete(key);
+        } else if (this.selected.get(key) === c.id) this.selected.delete(key);
+        this.selectionChanged.fire(notebook);
       });
       this.kernels.set(c.id, k);
       for (const nb of this.preferred.get(c.id) ?? []) k.updateNotebookAffinity(nb, vscode.NotebookControllerAffinity.Preferred);
@@ -163,6 +167,11 @@ export class OxNotebookKernels implements vscode.Disposable {
     } catch (e) {
       void vscode.window.showWarningMessage(`${notebook.uri.path.split('/').pop()}: ${e instanceof Error ? e.message : String(e)}`);
     }
+  }
+
+  /** The connection a notebook's cells run on, while it has a kernel selected. */
+  connectionOf(notebook: vscode.NotebookDocument): string | undefined {
+    return this.selected.get(notebook.uri.toString());
   }
 
   /** Saves the selected kernel's connection in the notebook's metadata. */
