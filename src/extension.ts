@@ -24,8 +24,8 @@ import { ExplorerView } from './explorerView';
 import { openLocation, SinglePanel } from './panels';
 import { KgTests } from './testing';
 import { NOTEBOOK_TYPE, OxNotebookKernels, OxNotebookSerializer } from './notebook';
-import { d1Secret, ensureConnection, PinLenses } from './pins';
-import { parsePin } from '../shared/pin';
+import { attachableQuietly, d1Secret, DocumentConnections, ensureConnection, PinLenses, workspaceRoot } from './pins';
+import { connectionId, parsePin } from '../shared/pin';
 import { fromOntology, type Ontology } from '../shared/graph';
 import { QueryHistory, type HistoryEntry } from './history';
 import { ResultsPanels } from './resultsPanel';
@@ -72,7 +72,31 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const messaging = vscode.notebooks.createRendererMessaging('oxilite-renderer');
   messaging.onDidReceiveMessage((e) => onViewMessage(e.message as FromView));
   const connections = new ConnectionsView();
-  connections.onDidChangeConnections((list) => notebooks.sync(list));
+  connections.onDidChangeConnections((list) => {
+    notebooks.sync(list);
+    documentConnections.refreshAll();
+  });
+  const onAttached = (list: Connection[]) => {
+    connections.set(list);
+    refreshStatus();
+  };
+  /** The connection a document's completion and hover use: a cell's kernel, a file's pin, else null (the active one). */
+  const resolveConnection = async (document: vscode.TextDocument): Promise<string | null> => {
+    if (document.uri.scheme === 'vscode-notebook-cell') {
+      const nb = vscode.workspace.notebookDocuments.find((n) => n.getCells().some((c) => c.document === document));
+      return (nb && notebooks.connectionOf(nb)) ?? null;
+    }
+    const pin = parsePin(document.getText(), document.languageId);
+    if (!pin || !client) return null;
+    const id = connectionId(pin.ref, workspaceRoot());
+    if (connections.all.some((c) => c.id === id)) return id;
+    if (!(await attachableQuietly(pin.ref, context.secrets))) return null;
+    return (await ensureConnection(client, pin.ref, () => connections.all, context.secrets, onAttached)).id;
+  };
+  const documentConnections = new DocumentConnections(() => client, resolveConnection);
+  notebooks.onDidChangeConnection((nb) => {
+    for (const cell of nb.getCells()) documentConnections.update(cell.document);
+  });
   const history = new QueryHistory(context.workspaceState);
   const explorer = new ExplorerView(() => client);
   let project: StoreStatus | undefined;
@@ -98,6 +122,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     debugPanel,
     search,
     notebooks,
+    documentConnections,
     vscode.languages.registerCodeLensProvider([{ language: 'sparql' }, { language: 'datalog' }, { language: 'cypher' }], pinLenses),
     vscode.workspace.registerNotebookSerializer(NOTEBOOK_TYPE, new OxNotebookSerializer()),
     vscode.window.registerTreeDataProvider('oxilite.connections', connections),
@@ -139,6 +164,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     const profile = vscode.workspace.getConfiguration('oxilite').get<Profile>('reasoning.profile', 'none');
     project = await client.sendRequest<StoreStatus>(Methods.setReasoning, { profile });
     await refreshConnections();
+    documentConnections.refreshAll(true);
     // D1 connections come back after a restart; their tokens live in the secret store.
     for (const d of context.workspaceState.get<{ account: string; database: string; readOnly: boolean }[]>(d1Key, [])) {
       await attachD1(d.account, d.database, d.readOnly).catch(() => undefined);
@@ -154,10 +180,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const targetOf = async (document: vscode.TextDocument): Promise<Connection | undefined> => {
     const pin = parsePin(document.getText(), document.languageId);
     if (!pin || !client) return connections.active;
-    return ensureConnection(client, pin.ref, () => connections.all, context.secrets, (list) => {
-      connections.set(list);
-      refreshStatus();
-    });
+    return ensureConnection(client, pin.ref, () => connections.all, context.secrets, onAttached);
   };
 
   const run = async (text: string | undefined, document: vscode.TextDocument): Promise<void> => {

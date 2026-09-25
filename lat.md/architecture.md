@@ -28,6 +28,8 @@ A pin is a comment in the file's first comment block, `oxilite: connection = <ta
 
 Notebooks get one kernel per connection ([[src/notebook.ts#OxNotebookKernels]]). Choosing a kernel saves the connection in the notebook's metadata (`oxilite.connection`); opening the notebook re-attaches it and selects that kernel. Each output title names the connection it ran on.
 
+Completion, hover and vocabulary warnings follow the same connection: [[src/pins.ts#DocumentConnections]] sends `oxilite/documentConnection` for pinned files and notebook cells. It attaches a pin in the background only when that creates nothing and asks nothing: the SQLite file exists, or a D1 token is saved.
+
 ## Project manifest
 
 `oxilite.toml` declares graphs, file roles, the shapes and rules sets, the reasoning profile and tests; without it, conventions infer the same from files.
@@ -56,7 +58,7 @@ A report view groups results by shape or focus node and exports an `sh:Validatio
 
 Turtle/TriG, SPARQL, oxilite Datalog and openCypher get diagnostics, completion, hover and go-to-definition in v1; JSON-LD in v2. Run and explain work on `.rq`, `.dl` and `.cypher` files alike.
 
-Diagnostics come from the strict parsers and, for Datalog, oxilite's stratification and safety checks. Completion uses a lenient scanner for position (subject, predicate, after a prefix) and the store's predicate and class statistics for candidates. TextMate grammars give baseline highlighting; semantic tokens come later. See [[decisions#S7 Own parsers with a lenient completion scanner]].
+Diagnostics come from the strict parsers and, for Datalog, oxilite's stratification and safety checks. Completion uses a lenient scanner for position (subject, predicate, after a prefix) and the statistics of the document's connection (see [[architecture#Connections#Pinned documents]]) for candidates. TextMate grammars give baseline highlighting; semantic tokens come later. See [[decisions#S7 Own parsers with a lenient completion scanner]].
 
 ## Views
 

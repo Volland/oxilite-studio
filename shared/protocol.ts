@@ -150,6 +150,7 @@ export const Methods = {
   connections: 'oxilite/connections',
   attach: 'oxilite/attach',
   attachD1: 'oxilite/attachD1',
+  documentConnection: 'oxilite/documentConnection',
   localD1: 'oxilite/localD1',
   materialize: 'oxilite/materialize',
   detach: 'oxilite/detach',
