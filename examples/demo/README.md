@@ -10,3 +10,6 @@ tests and a notebook. Open this folder in VS Code with oxilite studio installed.
 - `rules/org.dl`: management chains and colleagues; open `ex:eve` in the resource view and
   ask **why?** she reports to Ada.
 - `oxilite check` in this folder runs the tests in `oxilite.toml`.
+- `queries/salaries.rq` starts with `# oxilite: connection = project`: a pinned file runs on
+  that connection whatever is active. The notebook remembers its connection too: pick a kernel
+  ("oxilite · Project store" or an attached database) in the top-right corner.

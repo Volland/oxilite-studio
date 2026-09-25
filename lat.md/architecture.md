@@ -18,7 +18,15 @@ Query results are the RDF/JS JSON oxilite's JavaScript packages already use (`ou
 
 A connection is a Project store (derived from workspace files) or an Attached store (a real database); queries, explain and views behave the same on both.
 
-The active connection shows in the status bar; a query document can pin one. Project stores live in `.oxilite/studio.sqlite` (git-ignored) and are rebuilt from files, so updates to them are discarded on reload. Attached stores are a local `.sqlite` file, a wrangler D1 file under `.wrangler/state`, or a remote D1 database over the HTTP API with credentials in VS Code SecretStorage. Writes to an attached store need confirmation, D1 connections open read-only by default and D1 writes show estimated billed rows; each D1 result shows its requests and rows read and written. D1 tokens live in VS Code's secret storage and D1 connections are restored when the server restarts. See [[decisions#S3 Project stores are derived, attached stores are real]] and [[decisions#S11 Attached stores are local SQLite and D1]].
+The active connection shows in the status bar and is where unpinned documents run. Project stores live in `.oxilite/studio.sqlite` (git-ignored) and are rebuilt from files, so updates to them are discarded on reload. Attached stores are a local `.sqlite` file, a wrangler D1 file under `.wrangler/state`, or a remote D1 database over the HTTP API with credentials in VS Code SecretStorage. Writes to an attached store need confirmation, D1 connections open read-only by default and D1 writes show estimated billed rows; each D1 result shows its requests and rows read and written. D1 tokens live in VS Code's secret storage and D1 connections are restored when the server restarts. See [[decisions#S3 Project stores are derived, attached stores are real]] and [[decisions#S11 Attached stores are local SQLite and D1]].
+
+### Pinned documents
+
+A query file or notebook can run on its own connection without changing the active one; the server attaches it with `activate: false`. See [[shared/pin.ts#parsePin]] and [[src/pins.ts#ensureConnection]].
+
+A pin is a comment in the file's first comment block, `oxilite: connection = <target>`, in the language's own comment marker (`#` for SPARQL, `%` or `#` for Datalog, `//` for Cypher). The target is `project`, a SQLite path (relative to the workspace, read-only unless followed by `read-write`) or `d1:<account>/<database>`, whose token must already be in SecretStorage. A CodeLens on the pin shows where the file runs; run and explain go there, and the result title names the connection.
+
+Notebooks get one kernel per connection ([[src/notebook.ts#OxNotebookKernels]]). Choosing a kernel saves the connection in the notebook's metadata (`oxilite.connection`); opening the notebook re-attaches it and selects that kernel. Each output title names the connection it ran on.
 
 ## Project manifest
 
@@ -94,7 +102,7 @@ The manifest's tests appear in VS Code's Test Explorer at their line in `oxilite
 
 ### Notebooks
 
-`.oxnb` notebooks mix Markdown with SPARQL, Datalog and Cypher cells run against the active connection; outputs are saved in the file and drawn by the oxilite renderer. See [[src/notebook.ts#OxNotebookController]].
+`.oxnb` notebooks mix Markdown with SPARQL, Datalog and Cypher cells run on the connection of the chosen kernel (see [[architecture#Connections#Pinned documents]]); outputs are saved in the file and drawn by the oxilite renderer.
 
 The renderer ([[webview/src/renderer.tsx#activate]]) hosts the same components as the panels; the components reach their host only through `post` ([[webview/src/host.ts#setPost]]), so IRIs in notebook outputs open the resource view too. Outputs keep a plain-text summary for other viewers.
 

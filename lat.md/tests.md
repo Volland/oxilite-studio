@@ -65,3 +65,19 @@ A Datalog goal and a Cypher path come back in the shapes the views use (the path
 ### Bad query rejects
 
 A query that does not parse rejects the request instead of crashing the server.
+
+## Pins
+
+Pin comments and connection references, which decide where a query file or notebook runs.
+
+### Each language pins in its own comments
+
+SPARQL pins with `#`, Datalog with `%` or `#`, Cypher with `//`; a marker from another language is not a pin, and `read-write` makes a SQLite pin writable.
+
+### A pin cannot hide below the query
+
+Only the leading comment block is read, so a pin-like comment after the first query line is ignored.
+
+### References round-trip and resolve
+
+A reference survives being saved to notebook metadata, resolves to the server's connection id, and a workspace path is stored relative to the workspace.

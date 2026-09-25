@@ -1,0 +1,11 @@
+# oxilite: connection = project
+# This file always runs on the Project store (the workspace files), whatever connection is
+# active: the pin above says so. Try `connection = data/prod.sqlite` for an attached database.
+PREFIX ex: <https://example.org/>
+
+# Payroll under each manager, direct and indirect reports (reportsTo comes from rules/org.dl).
+SELECT ?manager (COUNT(?e) AS ?reports) (SUM(?salary) AS ?payroll) WHERE {
+  ?e ex:reportsTo ?manager ; ex:salary ?salary .
+}
+GROUP BY ?manager
+ORDER BY DESC(?payroll)
