@@ -2,7 +2,7 @@
   "name": "oxilite-studio",
   "displayName": "oxilite studio",
   "description": "A development studio for oxilite: SPARQL, reasoning, SHACL and Datalog over RDF on SQLite.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "pavlyshyn",
   "license": "MIT OR Apache-2.0",
   "repository": {

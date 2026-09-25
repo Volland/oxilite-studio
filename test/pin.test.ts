@@ -1,3 +1,4 @@
+import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { connectionId, parsePin, refFromConnection, refFromString, refLabel, refToString } from '../shared/pin';
 import type { Connection } from '../shared/protocol';
@@ -27,7 +28,7 @@ describe('pins', () => {
     for (const s of ['project', 'sqlite:data/prod.sqlite', 'sqlite:data/prod.sqlite read-write', 'd1:acc/db']) {
       expect(refToString(refFromString(s)!)).toBe(s);
     }
-    expect(connectionId({ kind: 'sqlite', path: 'data/prod.sqlite', readOnly: true }, '/w')).toBe('attached:/w/data/prod.sqlite');
+    expect(connectionId({ kind: 'sqlite', path: 'data/prod.sqlite', readOnly: true }, '/w')).toBe(`attached:${path.join('/w', 'data/prod.sqlite')}`);
     expect(connectionId({ kind: 'sqlite', path: '/abs/x.sqlite', readOnly: true }, '/w')).toBe('attached:/abs/x.sqlite');
     const attached: Connection = { id: 'attached:/w/data/prod.sqlite', kind: 'sqlite', label: 'prod.sqlite', path: '/w/data/prod.sqlite', readOnly: false, active: false, triples: 3 };
     expect(refFromConnection(attached, '/w')).toEqual({ kind: 'sqlite', path: 'data/prod.sqlite', readOnly: false });
