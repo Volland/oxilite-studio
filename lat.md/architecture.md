@@ -34,7 +34,7 @@ Completion, hover and vocabulary warnings follow the same connection: [[src/pins
 
 `oxilite.toml` declares graphs, file roles, the shapes and rules sets, the reasoning profile and tests; without it, conventions infer the same from files.
 
-Roles are data, ontology, shapes and rules. Shapes are not loaded as data. A manifest graph IRI is a view over the per-file graphs mapped to it ([[architecture#Reload pipeline]]). A "Create manifest" command writes one from the detected conventions. See [[decisions#S4 Convention first, manifest optional]].
+Roles are data, ontology, shapes and rules. An ontology graph is registered in oxilite's schema registry for the graphs its `applies_to` names (every graph without it), which the [[architecture#Views#Schema registry view]] shows. Shapes are not loaded as data. A manifest graph IRI is a view over the per-file graphs mapped to it ([[architecture#Reload pipeline]]). A "Create manifest" command writes one from the detected conventions. See [[decisions#S4 Convention first, manifest optional]].
 
 ### New project and new database
 
@@ -122,6 +122,16 @@ The ontology diagram draws classes (with datatype properties and instance counts
 
 "Debug Rules" on a `.dl` file shows each rule's body matches and head facts, flags empty and exploding rules, and lists the strata; lines open the rule. "Full-Text Search" runs `oxl:textMatch` over string literals into a results panel.
 
+### Schema registry view
+
+"Show Schema Registry" draws a connection's named graphs and how oxilite's schema registry maps them, lists the registrations and what applies to each graph, and edits them. See [[src/registry.ts#RegistryController]].
+
+The server reads the registry with oxilite's own reader (`oxilite/registry`) and applies edits through the registry API (`oxilite/registryEdit`), so roles, lenient `oxl:active` forms and imports behave as in oxilite. Everything the view derives is pure: [[shared/registry.ts#schemaGraphs]] merges one entry per role into one graph, [[shared/registry.ts#dataGraphs]] lists the unregistered graphs plus targets that hold no triples, [[shared/registry.ts#effectiveSchemas]] says which active schemas apply to a graph and why (a direct target, `oxl:AllGraphs`, or an import chain matched by graph name or `oxl:ontologyIri`), and [[shared/registry.ts#mappingGraph]] builds the drawing. See [[decisions#S14 The server reads the registry, the studio explains it]].
+
+The mapping graph is a graph view whose nodes carry style classes: schema graphs coloured by role above the data graphs, an "All graphs" hub (or one dotted edge per data graph when expanded), dashed import edges, faded inactive registrations, dashed outlines for targets with no triples and imports nothing answers to, and optionally the system graphs. Clicking a node selects it instead of opening the resource view; the details below it list targets, where the schema takes effect, imports and metadata, with the edit buttons.
+
+Edits ask for what they need with VS Code pickers (a role, targets with "All graphs" first) and follow the update rules: an attached store asks for confirmation, a read-only one refuses, drop names the triples it deletes. The Project store's registry is rebuilt from `oxilite.toml` on reload, so the view says so and edits there are reported as temporary. The panel refreshes after an edit and whenever the store or the connections change. Store Explorer graphs show their role and targets, and a graph's menu offers "Register as Schema Graph…".
+
 ### Delivery to webviews
 
 A panel holds its latest message until the webview says it is ready, since a message posted before the page loads is lost. See [[src/resultsPanel.ts#Mailbox]].
@@ -130,7 +140,7 @@ Clickable text in the views is a link-styled button, not an `<a href="#">`: a no
 
 ### Still to come
 
-Paging the grid from the server instead of capping it, a structured plan tree, and the v2 items: JSON-LD and credentials, schema diff, in-editor chat, generic SPARQL endpoints and W3C test manifests. See [[decisions#S8 React webviews with serializable result payloads]].
+Registry edits written back to `oxilite.toml`, grid paging from the server instead of a cap, a structured plan tree, and the v2 items: JSON-LD and credentials, schema diff, in-editor chat, generic SPARQL endpoints and W3C test manifests. See [[decisions#S8 React webviews with serializable result payloads]].
 
 ## Testing
 

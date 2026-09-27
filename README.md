@@ -23,6 +23,12 @@ RDFS/OWL reasoning, SHACL and ShEx validation, over RDF stored in SQLite or Clou
   in the Problems panel on the offending line, linked to the shape.
 - **Store Explorer.** Graphs, the class hierarchy with asserted and inferred counts,
   properties, files, prefixes, the ontology diagram, and a rules debugger.
+- **Schema registry.** **oxilite: Show Schema Registry** draws a connection's named graphs as a
+  mapping graph: ontologies, shapes and ShEx graphs linked to the data graphs they apply to
+  (`oxl:appliesTo`), imports between ontologies, inactive registrations faded and dangling
+  targets flagged. A per-graph table says which schemas apply to each data graph and why
+  (directly, through `oxl:AllGraphs`, or through an import). Register, remap, activate,
+  deactivate, unregister or drop a schema graph from the view.
 - **Tests.** `[[test]]` entries in `oxilite.toml` (query results, SHACL, entailments) run in
   Test Explorer and in CI with `oxilite check`.
 - **Connections.** Attach SQLite files, a `wrangler dev` D1 database, or a remote D1 database
@@ -53,6 +59,7 @@ files = ["data/**/*.ttl"]
 iri = "https://example.org/g/ontology"
 files = ["ontology/*.ttl"]
 role = "ontology"
+applies_to = ["https://example.org/g/people"]   # every graph when left out
 
 [shapes]
 files = ["shapes/*.ttl"]

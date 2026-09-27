@@ -7,8 +7,9 @@ import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createMessageConnection, StreamMessageReader, StreamMessageWriter, type MessageConnection } from 'vscode-jsonrpc/node';
-import { Methods, type Connection, type ExplorerNode, type ProofNode, type QueryPayload, type StoreStatus } from '../shared/protocol';
+import { Methods, type Connection, type ExplorerNode, type ProofNode, type QueryPayload, type Registry, type RegistryEditResult, type StoreStatus } from '../shared/protocol';
 import { graphOf } from '../shared/graph';
+import { effectiveSchemas, graphLabel, mappingGraph } from '../shared/registry';
 import { formatTerm, toTable } from '../shared/terms';
 
 // OXILITE_BIN, or a release build in the sibling oxilite checkout.
@@ -113,6 +114,41 @@ run('studio-server end to end', () => {
     expect(toTable(rows).rows).toHaveLength(1);
     const after = await rpc.sendRequest<Connection[]>(Methods.detach, { id: created.id });
     expect(after.find((c) => c.active)?.id).toBe('project');
+  });
+
+  // @lat: [[tests#Server end to end#Registry round trip]]
+  it('edits a registry and draws its mapping graph', async () => {
+    const file = path.join(dir, 'registry.sqlite');
+    const list = await rpc.sendRequest<Connection[]>(Methods.attach, { path: file, readOnly: false, activate: false });
+    const connection = list.find((c) => c.path === file)!.id;
+    const ex = (p: string) => `https://ex.org/${p}`;
+    const load = `PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      INSERT DATA {
+        GRAPH <${ex('onto/zoo')}> { <${ex('zoo#')}> owl:imports <${ex('core#')}> . <${ex('Dog')}> rdfs:subClassOf <${ex('Animal')}> }
+        GRAPH <${ex('onto/core')}> { <${ex('Animal')}> rdfs:subClassOf <${ex('Thing')}> }
+        GRAPH <${ex('data/zoo')}> { <${ex('rex')}> a <${ex('Dog')}> }
+        GRAPH <${ex('data/garden')}> { <${ex('rose')}> a <${ex('Plant')}> }
+      }`;
+    await rpc.sendRequest(Methods.query, { query: load, connection, confirmed: true });
+    const edit = (p: object) => rpc.sendRequest<RegistryEditResult>(Methods.registryEdit, { connection, confirmed: true, ...p });
+    // Unconfirmed, an edit on an attached store is refused until the user agrees.
+    await expect(rpc.sendRequest(Methods.registryEdit, { connection, op: 'register', graph: ex('onto/zoo') })).rejects.toThrow();
+    await edit({ op: 'register', graph: ex('onto/zoo'), role: 'ontology', appliesTo: [ex('data/zoo')] });
+    await edit({ op: 'register', graph: ex('onto/core'), role: 'ontology', appliesTo: [ex('data/other')] });
+    const registry = await rpc.sendRequest<Registry>(Methods.registry, { connection });
+    expect(registry.ownImports).toEqual([{ graph: ex('onto/zoo'), imports: [ex('core#')] }]);
+    // The core ontology answers to `core#` only once its ontology IRI is recorded.
+    expect(effectiveSchemas(registry, ex('data/zoo')).map((a) => `${graphLabel(a.schema)} ${a.via}`)).toEqual(['onto/zoo direct']);
+    const withIri = { ...registry, entries: registry.entries.map((e) => (e.graph === ex('onto/core') ? { ...e, iri: ex('core#') } : e)) };
+    expect(effectiveSchemas(withIri, ex('data/zoo')).map((a) => `${graphLabel(a.schema)} ${a.via}`)).toEqual(['onto/zoo direct', 'onto/core import']);
+    const edges = mappingGraph(registry).edges.map((e) => `${graphLabel(e.source)} ${e.label} ${graphLabel(e.target)}`);
+    expect(edges).toContain('onto/zoo applies to data/zoo');
+    expect(edges).toContain('onto/core applies to data/other');
+    // Remapped to every graph, core reaches the garden too.
+    await edit({ op: 'map', graph: ex('onto/core'), appliesTo: ['https://oxilite.dev/ns#AllGraphs'] });
+    const after = await rpc.sendRequest<Registry>(Methods.registry, { connection });
+    expect(effectiveSchemas(after, ex('data/garden')).map((a) => `${graphLabel(a.schema)} ${a.via}`)).toEqual(['onto/core all']);
+    await rpc.sendRequest(Methods.detach, { id: connection });
   });
 
   // @lat: [[tests#Server end to end#Bad query rejects]]

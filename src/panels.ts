@@ -37,6 +37,10 @@ export class SinglePanel implements vscode.Disposable {
     this.mailbox?.post(message);
   }
 
+  get isOpen(): boolean {
+    return this.panel !== undefined;
+  }
+
   /** Updates the panel only if it is open. */
   update(title: string, message: ToView): void {
     if (this.panel) this.show(title, message);

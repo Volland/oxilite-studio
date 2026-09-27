@@ -49,3 +49,34 @@ table.debug th { position: static; }
 button.link { background: none; border: none; padding: 0; margin: 0; font: inherit; color: var(--vscode-textLink-foreground); cursor: pointer; text-align: inherit; }
 button.link:hover { text-decoration: underline; }
 .toggle button.link.on { font-weight: 600; color: var(--vscode-foreground); }
+/* Schema registry view. */
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 10px; border-bottom: 1px solid var(--vscode-panel-border); }
+.toolbar .options { margin-left: auto; display: flex; gap: 12px; color: var(--vscode-descriptionForeground); }
+button.action { font: inherit; padding: 2px 10px; border: 1px solid var(--vscode-button-border, transparent); border-radius: 2px; background: var(--vscode-button-background); color: var(--vscode-button-foreground); cursor: pointer; }
+button.action:hover { background: var(--vscode-button-hoverBackground); }
+button.action.secondary { background: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground); }
+button.action.danger { background: var(--vscode-inputValidation-errorBackground, #5a1d1d); color: var(--vscode-foreground); }
+.notice { margin: 6px 10px 0; padding: 4px 8px; border-left: 3px solid var(--vscode-editorInfo-foreground, #3794ff); background: var(--vscode-textBlockQuote-background); }
+.notice.problem { border-left-color: var(--vscode-editorWarning-foreground); }
+.notice ul { margin: 4px 0; padding-left: 18px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 10px 0; color: var(--vscode-descriptionForeground); font-size: 0.9em; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; }
+.swatch.role-ontology, .badge.role-ontology { background: var(--vscode-charts-purple, #b180d7); }
+.swatch.role-shacl, .badge.role-shacl { background: var(--vscode-charts-orange, #d18616); }
+.swatch.role-shex, .badge.role-shex { background: var(--vscode-charts-yellow, #cca700); }
+.swatch.data { background: var(--vscode-charts-blue, #3794ff); border-radius: 50%; }
+.swatch.all { background: var(--vscode-charts-green, #89d185); transform: rotate(45deg); }
+.swatch.missing { border: 1px dashed var(--vscode-editorWarning-foreground); }
+.badge.role { color: var(--vscode-editor-background); margin-right: 4px; }
+.dim, .via { color: var(--vscode-descriptionForeground); }
+.via { font-size: 0.9em; margin-left: 4px; }
+table.registry td { max-width: 40ch; }
+table.registry tr { cursor: pointer; }
+table.registry tr.inactive td { opacity: 0.55; }
+table.registry tr.missing td { color: var(--vscode-editorWarning-foreground); }
+table.registry tr.selected td, table.registry tr.selected:hover td { background: var(--vscode-list-activeSelectionBackground); color: var(--vscode-list-activeSelectionForeground); }
+.details { border-top: 1px solid var(--vscode-panel-border); padding: 4px 14px 8px; max-height: 45%; overflow: auto; flex: none; }
+.details h3 { margin: 6px 0; font-size: 1.05em; }
+.details .iri { font-weight: normal; font-size: 0.9em; margin-left: 6px; }
+.details table.plain td:first-child { color: var(--vscode-descriptionForeground); }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
