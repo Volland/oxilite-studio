@@ -84,7 +84,7 @@ Only the leading comment block is read, so a pin-like comment after the first qu
 
 ### References round-trip and resolve
 
-A reference survives being saved to notebook metadata, resolves to the server's connection id, and a workspace path is stored relative to the workspace.
+A reference survives being saved to notebook metadata, resolves to the server's connection id, and a workspace path is stored relative to the workspace, with `/` separators on every platform (so a notebook saved on Windows opens elsewhere).
 
 ## New project
 

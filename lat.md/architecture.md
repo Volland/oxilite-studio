@@ -26,7 +26,7 @@ A query file or notebook can run on its own connection without changing the acti
 
 A pin is a comment in the file's first comment block, `oxilite: connection = <target>`, in the language's own comment marker (`#` for SPARQL, `%` or `#` for Datalog, `//` for Cypher). The target is `project`, a SQLite path (relative to the workspace, read-only unless followed by `read-write`) or `d1:<account>/<database>`, whose token must already be in SecretStorage. A CodeLens on the pin shows where the file runs; run and explain go there, and the result title names the connection.
 
-Notebooks get one kernel per connection ([[src/notebook.ts#OxNotebookKernels]]). Choosing a kernel saves the connection in the notebook's metadata (`oxilite.connection`); opening the notebook re-attaches it and selects that kernel. Each output title names the connection it ran on.
+Notebooks get one kernel per connection ([[src/notebook.ts#OxNotebookKernels]]). Choosing a kernel saves the connection in the notebook's metadata (`oxilite.connection`), a workspace path relative and with `/` separators; opening the notebook re-attaches it and selects that kernel. Each output title names the connection it ran on.
 
 Completion, hover and vocabulary warnings follow the same connection: [[src/pins.ts#DocumentConnections]] sends `oxilite/documentConnection` for pinned files and notebook cells. It attaches a pin in the background only when that creates nothing and asks nothing: the SQLite file exists, or a D1 token is saved.
 

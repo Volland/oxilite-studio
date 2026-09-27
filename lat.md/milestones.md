@@ -62,7 +62,7 @@ Status: done (2026-09-24).
 
 See [[architecture#Project manifest#New project and new database]]. Tested by [[tests#New project]] and [[tests#Server end to end#Attaching a new path creates the database]].
 
-Status: done (2026-09-25), released in 0.1.4. The commands are covered by unit and end-to-end tests, but the dialogs have not been exercised in a running VS Code window.
+Status: done (2026-09-25), released in 0.1.4 for macOS and Linux; 0.1.5 adds Windows, whose first CI build found notebook paths saved with `\` separators. The commands are covered by unit and end-to-end tests, but the dialogs have not been exercised in a running VS Code window.
 
 ## v1.3 Manifest from conventions
 

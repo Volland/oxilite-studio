@@ -114,5 +114,6 @@ export function refFromConnection(c: Connection, root: string | undefined): Conn
   }
   const rel = root ? path.relative(root, c.path) : c.path;
   const inside = root && !rel.startsWith('..') && !path.isAbsolute(rel);
-  return { kind: 'sqlite', path: inside ? rel : c.path, readOnly: c.readOnly };
+  // Saved with `/` so a notebook saved on Windows still resolves on macOS and Linux.
+  return { kind: 'sqlite', path: inside ? rel.split(path.sep).join('/') : c.path, readOnly: c.readOnly };
 }
