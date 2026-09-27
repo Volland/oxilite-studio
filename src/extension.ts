@@ -1,10 +1,9 @@
 // oxilite studio: starts `oxilite studio-server` and wires its requests to commands and views.
 // @lat: [[architecture#Process model]]
 import * as vscode from 'vscode';
-import { ResponseError, type LanguageClient } from 'vscode-languageclient/node';
+import type { LanguageClient } from 'vscode-languageclient/node';
 import {
   Methods,
-  NEEDS_CONFIRMATION,
   type Connection,
   type Description,
   type FromView,
@@ -18,6 +17,7 @@ import {
 } from '../shared/protocol';
 import { summarize } from '../shared/terms';
 import { createClient } from './client';
+import { sendWithConfirmation } from './confirm';
 import { findServer } from './serverPath';
 import { ConnectionsView } from './connectionsView';
 import { ExplorerView } from './explorerView';
@@ -30,6 +30,7 @@ import { fromOntology, type Ontology } from '../shared/graph';
 import { QueryHistory, type HistoryEntry } from './history';
 import { ResultsPanels } from './resultsPanel';
 import { newDatabase, newProject, PROFILES } from './scaffold';
+import { RegistryController } from './registry';
 
 let client: LanguageClient | undefined;
 
@@ -47,6 +48,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     if (m.type === 'openResource') void vscode.commands.executeCommand('oxilite.openResource', m.iri);
     if (m.type === 'openLocation') void openLocation(m.location);
     if (m.type === 'why') void why(m);
+    if (m.type === 'registry') void registry.handle(m.op, m.graph);
   };
   const why = async (t: { s: unknown; p: unknown; o: unknown }) => {
     if (!client) return;
@@ -65,6 +67,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const diagram = new SinglePanel(context.extensionUri, 'oxilite.ontology', onViewMessage);
   const debugPanel = new SinglePanel(context.extensionUri, 'oxilite.debug', onViewMessage);
   const search = new SinglePanel(context.extensionUri, 'oxilite.search', onViewMessage);
+  const registryPanel = new SinglePanel(context.extensionUri, 'oxilite.registry', onViewMessage);
   const notebooks = new OxNotebookKernels(() => client, context.secrets, (list) => {
     connections.set(list);
     refreshStatus();
@@ -73,6 +76,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const messaging = vscode.notebooks.createRendererMessaging('oxilite-renderer');
   messaging.onDidReceiveMessage((e) => onViewMessage(e.message as FromView));
   const connections = new ConnectionsView();
+  const registry = new RegistryController(registryPanel, () => client, () => connections.all);
   connections.onDidChangeConnections((list) => {
     notebooks.sync(list);
     documentConnections.refreshAll();
@@ -122,6 +126,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     diagram,
     debugPanel,
     search,
+    registryPanel,
     notebooks,
     documentConnections,
     vscode.languages.registerCodeLensProvider([{ language: 'sparql' }, { language: 'datalog' }, { language: 'cypher' }], pinLenses),
@@ -146,12 +151,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       project = s;
       explorer.refresh();
       void tests.refresh();
-      void refreshConnections();
+      void refreshConnections().then(() => registry.refresh());
     });
     client.onNotification(Methods.connectionsChanged, (list: Connection[]) => {
       connections.set(list);
       explorer.refresh();
       refreshStatus();
+      void registry.refresh();
     });
     client.onNotification(Methods.validationStarted, () => {
       validation.text = '$(sync~spin) SHACL';
@@ -407,6 +413,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       const o = await client.sendRequest<Ontology>(Methods.ontology, {});
       diagram.show('Ontology', { type: 'graph', title: `Ontology: ${o.classes.length} classes`, graph: fromOntology(o) });
     }),
+    vscode.commands.registerCommand('oxilite.showSchemaRegistry', (c?: Connection) => registry.show(c)),
+    vscode.commands.registerCommand('oxilite.registerSchemaGraph', async (node?: { iri?: string }) => {
+      await registry.show();
+      await registry.handle('register', node?.iri);
+    }),
     vscode.commands.registerCommand('oxilite.debugRules', async () => {
       const editor = vscode.window.activeTextEditor;
       if (!client || !editor || editor.document.languageId !== 'datalog') return;
@@ -467,28 +478,6 @@ export async function deactivate(): Promise<void> {
 
 function selectionOrAll(editor: vscode.TextEditor): string {
   return editor.selection.isEmpty ? editor.document.getText() : editor.document.getText(editor.selection);
-}
-
-/** Runs a query; an update on a persistent store asks first and is re-sent confirmed. */
-async function sendWithConfirmation<P extends object, R>(
-  client: LanguageClient,
-  method: string,
-  params: P,
-  active: Connection | undefined,
-): Promise<R | undefined> {
-  try {
-    return await client.sendRequest<R>(method, params);
-  } catch (e) {
-    if (!(e instanceof ResponseError) || e.code !== NEEDS_CONFIRMATION) throw e;
-    const estimate = (e.data as { estimate?: string | null } | undefined)?.estimate;
-    const answer = await vscode.window.showWarningMessage(
-      `This changes ${active?.path ?? 'a persistent store'}. Run it?`,
-      { modal: true, detail: estimate ? `D1 bills written rows: ${estimate}.` : undefined },
-      'Run',
-    );
-    if (answer !== 'Run') return undefined;
-    return client.sendRequest<R>(method, { ...params, confirmed: true });
-  }
 }
 
 async function exportTo(client: LanguageClient | undefined, graph: string | undefined): Promise<void> {

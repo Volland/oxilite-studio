@@ -8,6 +8,8 @@ export interface GraphNode {
   id: string;
   label: string;
   kind: 'iri' | 'blank' | 'literal' | 'node';
+  /** Style classes for the graph view (the registry's roles, inactive, missing). */
+  classes?: string[];
 }
 
 export interface GraphEdge {
@@ -16,6 +18,7 @@ export interface GraphEdge {
   target: string;
   label: string;
   inferred?: boolean;
+  classes?: string[];
 }
 
 export interface Graph {

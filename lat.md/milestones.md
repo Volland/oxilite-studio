@@ -72,6 +72,14 @@ A "Create manifest" command that writes `oxilite.toml` for an existing folder fr
 
 Status: planned.
 
+## v1.4 Schema registry
+
+A view of oxilite's schema registry (vocabulary 2.1, oxilite 0.7): the mapping graph between named graphs, the registrations, the schemas that apply to each graph, and edits; the explorer shows graph roles.
+
+See [[architecture#Views#Schema registry view]]. OpenSpec change `schema-registry-view` here and `studio-server-registry` in oxilite. Tested by [[tests#Schema registry]] and [[tests#Server end to end#Registry round trip]].
+
+Status: done (2026-09-27), version 0.1.6. Needs an oxilite server with `oxilite/registry`; the view was checked by rendering the webview bundle in a browser with a real payload, not yet in a running VS Code window.
+
 ## v2 Deferred
 
 Work left out of v1 on purpose, to be planned after it ships: JSON-LD and Verifiable Credentials browsing, schema diff, in-editor chat, generic SPARQL endpoints, W3C `mf:` test manifests.

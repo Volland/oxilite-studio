@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import type { ToView } from '../../shared/protocol';
 import { summarize } from '../../shared/terms';
 import { DebugView, GraphPage, PlanView, ReportView, ResourceView, ResultView, setPost, WhyView } from './components';
+import { RegistryView } from './registryView';
 import { vscode } from './vscode';
 import './results.css';
 
@@ -32,6 +33,7 @@ function App() {
   if (message.type === 'report') return <ReportView report={message.report} />;
   if (message.type === 'why') return <WhyView tree={message.tree} />;
   if (message.type === 'graph') return <GraphPage title={message.title} graph={message.graph} />;
+  if (message.type === 'registry') return <RegistryView title={message.title} registry={message.registry} />;
   if (message.type === 'debug') return <DebugView title={message.title} uri={message.uri} rules={message.rules} plan={message.plan} cap={message.cap} />;
   if (message.payload.kind === 'update') {
     return <header>{message.title}: {summarize(message.payload)}</header>;

@@ -79,3 +79,9 @@ This makes RDF projects testable in CI with the same code as the editor. Fixture
 The server exposes query, schema, validate and "why?" as MCP tools so any agent can use a connection; an in-editor chat UI is deferred to v2.
 
 The operations already exist in the server, so the tools are cheap and work with every agent client. See [[architecture#Agent tools]].
+
+## S14 The server reads the registry, the studio explains it
+
+The registry view gets the registry from oxilite's own reader and edits it through the registry API; the studio only derives the effective mapping and the drawing, in pure functions.
+
+Reimplementing the reader in TypeScript over SPARQL would drift from oxilite's rules (two roles per graph, the two lexical forms of a false `oxl:active`, vocabulary 2 `owl:imports`). Deriving the mapping in the studio keeps it testable without a server and renderable from a saved payload. Rejected: editing through hand-written SPARQL updates, which skip the atomic rebuild checks the API makes explicit. See [[architecture#Views#Schema registry view]].

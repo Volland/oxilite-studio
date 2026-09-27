@@ -66,9 +66,41 @@ A Datalog goal and a Cypher path come back in the shapes the views use (the path
 
 Attaching a SQLite path that does not exist creates the file as an empty, active, read-write connection whose confirmed updates persist; detaching returns to the Project store.
 
+### Registry round trip
+
+On an attached store, a registry edit needs confirmation; registered ontologies come back with the imports asserted in their graphs, and the shared functions derive direct, import and All-graphs mappings from the payload.
+
 ### Bad query rejects
 
 A query that does not parse rejects the request instead of crashing the server.
+
+## Schema registry
+
+How the registry view reads a registry payload, see [[architecture#Views#Schema registry view]].
+
+### Roles merge and data graphs are the rest
+
+A graph registered with two roles is one schema graph; unregistered, non-system graphs are data, and a target holding no triples is listed as missing.
+
+### Mapping graph links schemas to graphs
+
+Each schema links to its targets, a schema for every graph links to an "All graphs" node, and expanding it links it to every data graph instead.
+
+### Imports resolve by graph or ontology IRI
+
+An import links to the registered ontology whose graph name or `oxl:ontologyIri` it names; one naming an inactive ontology is drawn inactive, one naming nothing registered as an unresolved node.
+
+### Effective schemas follow oxilite's rules
+
+A schema applies directly or through `oxl:AllGraphs`, imports are followed transitively through active ontologies only, and an import cycle ends.
+
+### Without ontologies reasoning reads every graph
+
+The every-graph fallback holds only while no ontology is registered; an inactive ontology still counts as registered.
+
+### Graph labels are short
+
+Hierarchical IRIs are shown by their last two path segments, opaque IRIs (`urn:`) and system graphs whole, the default graph by name.
 
 ## Pins
 

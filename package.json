@@ -2,7 +2,7 @@
   "name": "oxilite-studio",
   "displayName": "oxilite studio",
   "description": "A development studio for oxilite: SPARQL, reasoning, SHACL and Datalog over RDF on SQLite.",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "publisher": "pavlyshyn",
   "license": "MIT OR Apache-2.0",
   "repository": {
@@ -272,6 +272,17 @@
         "icon": "$(type-hierarchy)"
       },
       {
+        "command": "oxilite.showSchemaRegistry",
+        "title": "Show Schema Registry",
+        "category": "oxilite",
+        "icon": "$(references)"
+      },
+      {
+        "command": "oxilite.registerSchemaGraph",
+        "title": "Register as Schema Graph…",
+        "category": "oxilite"
+      },
+      {
         "command": "oxilite.debugRules",
         "title": "Debug Rules",
         "category": "oxilite",
@@ -369,6 +380,11 @@
           "group": "navigation"
         },
         {
+          "command": "oxilite.showSchemaRegistry",
+          "when": "view == oxilite.explorer",
+          "group": "navigation"
+        },
+        {
           "command": "oxilite.textSearch",
           "when": "view == oxilite.explorer",
           "group": "navigation"
@@ -392,6 +408,14 @@
         {
           "command": "oxilite.materialize",
           "when": "view == oxilite.connections && viewItem == connection.attached"
+        },
+        {
+          "command": "oxilite.registerSchemaGraph",
+          "when": "view == oxilite.explorer && viewItem == graph"
+        },
+        {
+          "command": "oxilite.showSchemaRegistry",
+          "when": "view == oxilite.connections"
         }
       ],
       "commandPalette": [
@@ -409,6 +433,10 @@
         },
         {
           "command": "oxilite.openHistoryEntry",
+          "when": "false"
+        },
+        {
+          "command": "oxilite.registerSchemaGraph",
           "when": "false"
         }
       ],

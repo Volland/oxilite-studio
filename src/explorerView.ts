@@ -16,6 +16,14 @@ const ICONS: Record<ExplorerNode['kind'], string> = {
   prefix: 'symbol-constant',
 };
 
+/** Registered graphs by their (first) registry role. */
+const ROLE_ICONS: Record<string, string> = {
+  ontology: 'symbol-namespace',
+  shapes: 'shield',
+  shex: 'shield',
+  system: 'gear',
+};
+
 export class ExplorerView implements vscode.TreeDataProvider<ExplorerNode> {
   private readonly changed = new vscode.EventEmitter<void>();
   readonly onDidChangeTreeData = this.changed.event;
@@ -33,7 +41,7 @@ export class ExplorerView implements vscode.TreeDataProvider<ExplorerNode> {
     );
     item.description = n.description;
     item.tooltip = n.iri ?? n.uri ?? n.description;
-    item.iconPath = new vscode.ThemeIcon(ICONS[n.kind] ?? 'circle-outline');
+    item.iconPath = new vscode.ThemeIcon((n.role && ROLE_ICONS[n.role.split(' + ')[0]]) ?? ICONS[n.kind] ?? 'circle-outline');
     item.contextValue = n.kind;
     if (n.uri) {
       item.command = { command: 'vscode.open', title: 'Open', arguments: [vscode.Uri.parse(n.uri)] };

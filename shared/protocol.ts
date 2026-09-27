@@ -79,6 +79,58 @@ export interface ExplorerNode {
   collapsible: boolean;
   iri?: string;
   uri?: string;
+  /** A graph's registry roles (`ontology`, `shapes`, `shex`, joined with ` + `) or `system`. */
+  role?: string;
+}
+
+/** A schema role as oxilite names it. */
+export type SchemaRole = 'ontology' | 'shacl' | 'shex';
+
+/** One registration (one per role), as `oxilite_core::json::schema_graph_to_json` writes it;
+ * graphs are IRIs, `oxl:DefaultGraph` for the default graph, and `appliesTo` empty means every graph. */
+export interface RegistryEntry {
+  graph: string;
+  role: SchemaRole;
+  iri: string | null;
+  version: string | null;
+  sha256: string | null;
+  imports: string[];
+  appliesTo: string[];
+  active: boolean;
+  loadedAt: string | null;
+}
+
+/** `oxilite/registry`: a connection's schema registry and the graphs it maps. */
+export interface Registry {
+  entries: RegistryEntry[];
+  /** Every graph with its size (`null` on remote D1). */
+  graphs: { graph: string; triples: number | null }[];
+  /** `owl:imports` asserted inside registered ontology graphs. */
+  ownImports: { graph: string; imports: string[] }[];
+  /** Violations of `oxl:RegistrationShape`. */
+  problems: string[];
+  /** System graphs holding triples, and whether they are at the current vocabulary version. */
+  systemGraphs: { present: string[]; current: boolean };
+  /** The Project store: its registry is rebuilt from the manifest on reload. */
+  ephemeral: boolean;
+  readOnly: boolean;
+}
+
+export type RegistryOp = 'register' | 'addRole' | 'map' | 'activate' | 'deactivate' | 'unregister' | 'drop' | 'installSystemGraphs';
+
+export interface RegistryEditParams {
+  op: RegistryOp;
+  connection?: string;
+  graph?: string;
+  role?: SchemaRole;
+  appliesTo?: string[];
+  confirmed?: boolean;
+}
+
+export interface RegistryEditResult {
+  changed: boolean;
+  ephemeral: boolean;
+  dropped?: number;
 }
 
 export interface ValidationResultJson {
@@ -164,6 +216,8 @@ export const Methods = {
   validationReport: 'oxilite/validationReport',
   why: 'oxilite/why',
   ontology: 'oxilite/ontology',
+  registry: 'oxilite/registry',
+  registryEdit: 'oxilite/registryEdit',
   datalogDebug: 'oxilite/datalogDebug',
   tests: 'oxilite/tests',
   runTest: 'oxilite/runTest',
@@ -192,6 +246,7 @@ export type ToView =
       plan: string;
       cap: number;
     }
+  | { type: 'registry'; title: string; registry: Registry }
   | { type: 'error'; title: string; message: string };
 
 /** Messages from a webview back to the extension. */
@@ -199,4 +254,5 @@ export type FromView =
   | { type: 'ready' }
   | { type: 'openResource'; iri: string }
   | { type: 'openLocation'; location: LocationJson }
-  | { type: 'why'; s: Term; p: Term; o: Term };
+  | { type: 'why'; s: Term; p: Term; o: Term }
+  | { type: 'registry'; op: RegistryOp | 'refresh' | 'openManifest'; graph?: string };
