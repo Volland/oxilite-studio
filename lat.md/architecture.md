@@ -165,3 +165,5 @@ Eve deliberately has no name, so SHACL flags her line once OWL 2 RL makes her a 
 The server ships from the oxilite monorepo as `oxilite studio-server`; this repo builds platform-specific VSIXes that bundle the matching binary.
 
 Targets: darwin-arm64, darwin-x64, linux-x64, linux-arm64, win32-x64. The logo (`media/logo.svg`, rendered to `media/icon.png`) derives from oxilite's: the same tile and graph-quill, one dashed orange inferred edge, and an editor-window badge in place of the edge cloud; `media/activity.svg` is its monochrome quill for the activity bar. The setting `oxilite.server.path` points at a local build. See [[decisions#S9 Server in the oxilite monorepo, extension in this repo]].
+
+Pushing a `v*` tag runs the `publish-openvsx` job in `.github/workflows/release.yml`, which publishes every platform VSIX to Open VSX using the `OVSX_PAT` repository secret.
